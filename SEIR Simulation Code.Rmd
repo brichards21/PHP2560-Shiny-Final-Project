@@ -1,0 +1,155 @@
+---
+title: "PHP2560 SEIR Project"
+author: "Breanna Richards, Tim Hedspeth, Nancy Liu"
+date: "11/26/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+library(latex2exp)
+```
+
+Our Model:
+
+- Some exposed individuals will enter the quarantined class and others enter the infectives.
+
+- Individuals in quarantined and infected classes will enter diagnosed class
+
+- Note that not all infected people will be diagnosed
+
+- They will either enter the recovered class or die
+
+- $\epsilon$ rate of exposed people moving into infective class
+
+- $\lambda$ rate of exposed people moving into quarantined class
+
+- $\sigma$ rate of quarantined people moving into diagnosed class
+
+- $\theta$ rate of infectives moving into diagnosed class
+
+- $\gamma$ rate of diagnosed moving into recovered class
+
+- $\delta$ rate of infected and diagnosed people dying
+
+- $\beta(t)$ transmission rate
+
+
+
+Default Rate Values:
+
+- $\epsilon = (1/3)(2/5)$
+
+- $\lambda = (1/3)(3/5)$
+
+- $\delta = (15/100)(1/21)$
+
+- $\theta = 1/3$
+
+- $\sigma = 1/3$
+
+- $\gamma = 1/21$
+
+- $k = 0.1$
+
+Infection rate $\beta(t)$ is most important parameter because the model is most sensitive to it. 
+
+Default Initial Number of People: 
+- Exposed: E(0) = 477
+- Infectives: I(0) = 286
+- Quarantined: Q(0) = 191
+- Diagnosed: J(0) = 848
+- Recovered: R(0) = 1213
+
+
+This is an example of our simulations and the plots!  
+
+## Starting the Simulation
+
+
+```{r}
+
+get_diagnosed <- function(b_func, e = 477, i = 286, q = 191, 
+                j = 848, r = 1213, epsilon = (1/3)*(2/5),
+lambda = (1/3)*(3/5), delta = (15/100)*(1/21), 
+theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1,
+b = ((31 + t)/(22 + 5*t))) {
+
+days <- 400
+
+for (t in 1:(days - 1)) {
+e[t+1] <- e[t] + b*((k*e[t])+i[t]) - (epsilon+lambda)*e[t]
+i[t+1] <- i[t] + epsilon*e[t] - (delta + theta)*i[t]
+q[t+1] <- q[t] + lambda*e[t] - sigma*q[t]
+j[t+1] <- j[t] + theta*i[t] + sigma*q[t] - (delta + gamma)*j[t]
+r[t+1] <- r[t] + gamma*j[t]
+
+}
+
+all_data <- as.data.frame(cbind(Time = 1:days, Exposed = e, Infectives = i, 
+                                Quarantined = q, Diagnosed = j, Recovered = r))
+
+return(all_data)
+}
+
+
+example_data <- get_diagnosed(b = 0.6781)
+```
+
+This is a preview of what our data looks like! Users will be able to pick what columns they want to look at. 
+
+```{r}
+
+head(example_data)
+
+```
+
+
+## Visualization Examples (RESULTS)
+
+```{r}
+
+df <- example_data %>%
+pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
+
+```
+
+
+A checkbox will indicate which lines we want to see!
+
+```{r}
+
+# plot separately
+ggplot(df[df$people_type == "Diagnosed", ], aes(x = Time,
+                              y = num_people)) + geom_line() +
+  labs(title = TeX("Number of Diagnosed Cases with $\\beta = 0.6781$"))
+
+ggplot(df[df$people_type == "Exposed", ], aes(x = Time, 
+                            y = num_people)) + geom_line() +
+  labs(title = TeX("Number of Exposed Cases with $\\beta = 0.6781$"))
+
+ggplot(df[df$people_type == "Infectives", ], aes(x = Time, 
+                          y = num_people)) + geom_line() +
+  labs(title = TeX("Number of Infectives with $\\beta = 0.6781$"))
+
+ggplot(df[df$people_type == "Quarantined", ], aes(x = Time, 
+                            y = num_people)) + geom_line() +
+  labs(title = TeX("Number of Quarantined Cases with $\\beta = 0.6781$"))
+
+ggplot(df[df$people_type == "Recovered", ], aes(x = Time, 
+                            y = num_people)) + geom_line() +
+  labs(title = TeX("Number of Recovered Cases with $\\beta = 0.6781$"))
+
+
+ggplot(df[df$people_type ==  "Diagnosed" | df$people_type == "Recovered", ],
+       aes(x = Time, y = num_people)) + geom_line(aes(col = people_type)) +
+  labs(title = TeX("Number of Diagnosed and Recovered Cases with $\\beta(t)$"))
+
+ggplot(df, aes(x = Time, y = num_people)) + geom_line(aes(col = people_type)) +
+  labs(title = TeX("Number of Cases by People Type with $\\beta(t)$"))
+
+
+```
+
