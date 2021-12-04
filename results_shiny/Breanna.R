@@ -47,7 +47,7 @@ server <- function(input, output) {
         for (t in 1:(days - 1)) {
             e[t+1] <- e[t] + b_func(t)*((k*e[t])+i[t]) - (epsilon+lambda)*e[t]
             i[t+1] <- i[t] + epsilon*e[t] - (delta + theta)*i[t]
-            q[t+1] <- q[t] + lambda*e[t] - sigma*q[t]
+            q[t+1] <- q[t] + lambda*e[t] - sigma*q[t] 
             j[t+1] <- j[t] + theta*i[t] + sigma*q[t] - (delta + gamma)*j[t]
             r[t+1] <- r[t] + gammaa*j[t]
             
@@ -77,7 +77,7 @@ server <- function(input, output) {
                                choices = levels(df$study),
                                selected = levels(df$study)
             ))
-    }),
+    })
     
     output$distPlot <-renderPlot({
         
