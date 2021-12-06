@@ -41,25 +41,76 @@ ui <- fluidPage(
                      A discrete epidemic model for SARS transmission and control in China. 
                      Mathematical and Computer Modelling, 40(13), 1491–1506. https://doi.org/10.1016/j.mcm.2005.01.007 ")),
       tabPanel("Set your parameters", 
-               selectInput("Dropdown", "When do you want to start", c("Day 1", "Middle of Pandemic")), 
-               textInput("Population", "What is your popultion size?" , "Enter a numeric value"),
-               textInput("Infected", "How many people are infected?" , "Enter a numeric value"), 
-               textInput("Exposed", "How many people have been exposed?" , "Enter a numeric value")
-      ), 
+               selectInput("Whenstart", "When do you want to start", c("Start", "Middle"  , "Random")), 
+                   uiOutput("Differentbuttons")),
       tabPanel("Results")
         )
+    )
+)
     
-  )
-        )
 
 
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output){
     
     #reactive for results
     #observe is what we observe that does not depend ion anything 
 
+  output$Differentbuttons <- renderUI({
+    
+    if(input$Whenstart == "Start"){
+       ui = mainPanel(textInput("exposed",
+                                "Number of Individuals Exposed to COVID",
+                                "411"),
+                      textInput("infectives",
+                                "Number of Individuals who are Infective",
+                                "34"))
+    } else if(input$Whenstart == "Middle"){
+      ui = mainPanel(textInput("exposed",
+                               "Number of Individuals Exposed to COVID",
+                               "411"), # this is the default values
+                     
+                     textInput("infectives",
+                               "Number of Individuals who are Infective",
+                               "34"),
+                     
+                     textInput("quarantined",
+                               "Number of Individuals in Quarantine",
+                               "0"),
+                     
+                     textInput("diagnosed",
+                               "Number of Individuals Diagnosed with COVID",
+                               "0"),
+                     
+                     textInput("recovered",
+                               "Number of Individuals Recovered from COVID",
+                               "0"))
+    } else{ 
+       ui = mainPanel(textInput("exposed",
+                                "Number of Individuals Exposed to COVID",
+                                "411"), # this is the default values
+                      
+                      textInput("infectives",
+                                "Number of Individuals who are Infective",
+                                "34"),
+                      
+                      textInput("quarantined",
+                                "Number of Individuals in Quarantine",
+                                "0"),
+                      
+                      textInput("diagnosed",
+                                "Number of Individuals Diagnosed with COVID",
+                                "0"),
+                      
+                      textInput("recovered",
+                                "Number of Individuals Recovered from COVID",
+                                "0"))
+      }
+    
+  })
+  
+  
     
 }
 
