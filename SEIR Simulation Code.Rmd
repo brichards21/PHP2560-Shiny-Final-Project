@@ -76,16 +76,36 @@ This is an example of our simulations and the plots!
 get_diagnosed <- function( e = 477, i = 286, q = 191, 
                 j = 848, r = 1213, epsilon = (1/3)*(2/5),
 lambda = (1/3)*(3/5), delta = (15/100)*(1/21), 
-theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, b = (31 + t)/(22 + 5*t)) {
+theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, b = (31 + t)/(22 + 5*t), max_e = NULL,
+max_i = NULL, max_q = NULL, max_j = NULL) {
 
 days <- 400
 
+if (!is.null(max_e)) {
+e <- runif(1, 1, max_e)
+}
+
+if (!is.null(max_i)) {
+i <- runif(1, 1, max_i)
+}
+
+if (!is.null(max_q)) {
+q <- runif(1, 1, max_q)
+}
+
+if (!is.null(max_j)) {
+j <- runif(1, 1, max_j)
+}
+
+if (!is.null(max_r)){
+r <- runif(1, 1, max_r)
+}
 
 
 for (t in 1:(days - 1)) {
 
 
-e[t+1] <- e[t] + (31 + t)/(22 + 5*t)*((k*e[t])+i[t]) - (epsilon+lambda)*e[t]
+e[t+1] <- e[t] + b*((k*e[t])+i[t]) - (epsilon+lambda)*e[t]
 i[t+1] <- i[t] + epsilon*e[t] - (delta + theta)*i[t]
 q[t+1] <- q[t] + lambda*e[t] - sigma*q[t]
 j[t+1] <- j[t] + theta*i[t] + sigma*q[t] - (delta + gamma)*j[t]
@@ -193,12 +213,16 @@ df_use %>%
     split = ~ people_type,
     frame = ~ frame,
     type = 'scatter',
+    text = ~ num_people,
     mode = 'lines',
+    hoverinfo = "text",
     line = list(simplyfy = F)
   ) %>%
+  add_markers(ids = ~ num_people) %>%
   layout (
     xaxis = list(
       title = "Day",
+     # range = c()
       zeroline = F
     ),
     yaxis = list(
@@ -218,6 +242,7 @@ df_use %>%
     x = 1, xanchor = "right", y = 0, yanchor = "bottom"
   )
 }
+
 
 run_animation(df_full)
 
