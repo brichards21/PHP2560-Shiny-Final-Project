@@ -8,6 +8,13 @@
 #
 
 library(shiny)
+library(ggplot2)
+library(tidyverse)
+library(latex2exp)
+
+# this is the file name of the code Breanna uploaded
+# make sure to source the right file
+source("simulation_updated.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -25,25 +32,25 @@ ui <- fluidPage(
                         "Time",
                         c("Start", "Middle")),
             
-            textInput("exposed",
+            numericInput("exposed",
                       "Number of Individuals Exposed to COVID",
-                      "411"), # this is the default values
+                      411), # this is the default values
             
-            textInput("infectives",
+            numericInput("infectives",
                       "Number of Individuals who are Infective",
-                      "34"),
+                      34),
             
-            textInput("quarantined",
+            numericInput("quarantined",
                       "Number of Individuals in Quarantine",
-                      "0"),
+                      0),
             
-            textInput("diagnosed",
+            numericInput("diagnosed",
                       "Number of Individuals Diagnosed with COVID",
-                      "0"),
+                      0),
             
-            textInput("recovered",
+            numericInput("recovered",
                       "Number of Individuals Recovered from COVID",
-                      "0"),
+                      0),
             
             checkboxInput("exp",
                                "Exposed"),
@@ -79,40 +86,42 @@ server <- function(input, output) {
     
     output$test_plot <- renderPlot({
         
+        # code to generate data
+        # we can change the various values of epsilon, lambda, delta, etc
+        # once we figure out our inputs
+        example_data <- get_diagnosed(e = input$exposed, i = input$infectives,
+                      q = input$quarantined, j = input$diagnosed, r = input$recovered,
+                      epsilon = (1/3)*(2/5), lambda = (1/3)*(3/5), delta = (15/100)*(1/21),
+                      theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1,
+                      b = input$transmission_rate)
         
-        ## code below is used to generate the plot
-        # this should be a function of its own outside the server
-        count_next <- function(t, counts,
-                               delta, theta, gamma, sigma, epsilon, lambda, k) {
-            e_t <- counts[1] + (bt(t) * (k * counts[1] + counts[2])) - ((epsilon + lambda) * counts[1])
-            i_t <- counts[2] + (epsilon * counts[1]) - ((delta + theta) * counts[2])
-            q_t <- counts[3] + (lambda * counts[1]) - (sigma * counts[3])
-            j_t <- counts[4] + (theta * counts[2]) + (sigma * counts[3]) - ((delta + theta) * counts[4])
-            r_t <- counts[5] + (gamma * counts[4])
-
-            return(c(e_t, i_t, q_t, j_t, r_t))
+        
+        df <- example_data %>%
+            pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
+        
+        # returns empty plot if nothing is checked
+        p <- ggplot(data = df, aes(x = Time, y = num_people)) +
+            labs(title = "Number of Cases Over Time", ylab = "Number of People")
+        
+        # see if diagnosed is checked
+        if(input$diag) {
+            p <- p + geom_line(data = df[df$people_type == "Diagnosed", ],
+                               aes(x = Time, y = num_people, colour = "Diagnosed"))
+        }
+        # see if exposed is checked
+        if(input$exp) {
+            p <- p + geom_line(data = df[df$people_type == "Exposed", ],
+                               aes(x = Time, y = num_people, colour = "Exposed"))
+        }
+        # see if infected is checked
+        if(input$inf) {
+            p <- p + geom_line(data = df[df$people_type == "Infectives", ],
+                               aes(x = Time, y = num_people, colour = "Infectives"))
         }
         
-        t <- seq(0, 400, 1)
-        colnames <- c("e", "i", "q", "d", "r")
-        temp <- data.frame(matrix(nrow = length(t), ncol = 5))
-        colnames(temp) <- c("e", "i", "q", "d", "r")
+        p <- p  + guides(col=guide_legend(title="Group"))
         
-        current_nums <- as.numeric(c(input$exposed, input$infectives, input$quarantined,
-                                     input$diagnosed, input$recovered))
-        temp[1,] <- current_nums
-
-        for (i in 1:(length(t) - 1)) {
-            current_nums <- count_next((i - 1), current_nums,
-                                       delta, theta, gamma, sigma, epsilon, lambda, k)
-            temp[i + 1, ] <- current_nums
-
-        }
         
-        # above should be placed inside of a function
-        
-        # p <- ggplot(data = temp) + geom_point(aes(t, d))
-        p <- plot(t, temp$d)
         return(p)
     })
 }
