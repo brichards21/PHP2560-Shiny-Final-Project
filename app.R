@@ -92,7 +92,7 @@ server <- function(input, output) {
         example_data <- get_diagnosed(e = input$exposed, i = input$infectives,
                       q = input$quarantined, j = input$diagnosed, r = input$recovered,
                       epsilon = (1/3)*(2/5), lambda = (1/3)*(3/5), delta = (15/100)*(1/21),
-                      theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1,
+                      theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.2,
                       b = input$transmission_rate)
         
         
