@@ -71,20 +71,34 @@ This is an example of our simulations and the plots!
 
 ```{r}
 
-get_diagnosed <- function(b_func, e = 477, i = 286, q = 191, 
+
+
+get_diagnosed <- function( e = 477, i = 286, q = 191, 
                 j = 848, r = 1213, epsilon = (1/3)*(2/5),
 lambda = (1/3)*(3/5), delta = (15/100)*(1/21), 
-theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1,
-b = ((31 + t)/(22 + 5*t))) {
+theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, b = (31 + t)/(22 + 5*t)) {
 
 days <- 400
 
+
+
 for (t in 1:(days - 1)) {
-e[t+1] <- e[t] + b*((k*e[t])+i[t]) - (epsilon+lambda)*e[t]
+
+
+e[t+1] <- e[t] + (31 + t)/(22 + 5*t)*((k*e[t])+i[t]) - (epsilon+lambda)*e[t]
 i[t+1] <- i[t] + epsilon*e[t] - (delta + theta)*i[t]
 q[t+1] <- q[t] + lambda*e[t] - sigma*q[t]
 j[t+1] <- j[t] + theta*i[t] + sigma*q[t] - (delta + gamma)*j[t]
 r[t+1] <- r[t] + gamma*j[t]
+
+
+if (b == (31 + t)/(22 + 5*t)) {
+  
+  b <- (31 + (t+1))/(22 + 5*(t+1))
+  
+}
+
+
 
 }
 
@@ -95,7 +109,9 @@ return(all_data)
 }
 
 
-example_data <- get_diagnosed(b = 0.6781)
+get_diagnosed()
+example_data <- get_diagnosed()
+
 ```
 
 This is a preview of what our data looks like! Users will be able to pick what columns they want to look at. 
@@ -111,7 +127,7 @@ head(example_data)
 
 ```{r}
 
-df <- example_data %>%
+df_full <- example_data %>%
 pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
 
 ```
@@ -122,9 +138,9 @@ A checkbox will indicate which lines we want to see!
 ```{r}
 
 # plot separately
-ggplot(df[df$people_type == "Diagnosed", ], aes(x = Time,
-                              y = num_people)) + geom_line() +
-  labs(title = TeX("Number of Diagnosed Cases with $\\beta = 0.6781$"))
+ggplot(df_full[df_full$people_type == "Diagnosed", ], aes(x = Time,
+                              y = num_people)) + geom_line() 
+
 
 ggplot(df[df$people_type == "Exposed", ], aes(x = Time, 
                             y = num_people)) + geom_line() +
@@ -152,4 +168,95 @@ ggplot(df, aes(x = Time, y = num_people)) + geom_line(aes(col = people_type)) +
 
 
 ```
+
+
+# Animate
+
+```{r}
+
+library(plotly)
+library(gganimate)
+
+
+
+# button that says run the simulation
+
+# function to run visual 
+run_animation <- function(df_use) {
+
+df_use <- accumulate_by(df_use, ~ Time)
+
+df_use %>%
+  plot_ly(
+    x = ~ Time,
+    y = ~ num_people,
+    split = ~ people_type,
+    frame = ~ frame,
+    type = 'scatter',
+    mode = 'lines',
+    line = list(simplyfy = F)
+  ) %>%
+  layout (
+    xaxis = list(
+      title = "Day",
+      zeroline = F
+    ),
+    yaxis = list(
+      title = "Number of People",
+      zeroline = F
+    )
+  ) %>%
+  animation_opts(
+    frame = 200,
+    transition = 0,
+    redraw = T
+  ) %>%
+  animation_slider(
+    hide = F
+  ) %>%
+  animation_button(
+    x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+  )
+}
+
+run_animation(df_full)
+
+```
+
+
+ 
+ 
+ 
+ 
+```{r} 
+
+ # unused code
+# p +
+#   
+#   gganimate::transition_reveal(Time) +
+#   
+#   labs(title = "{frame_along}: Number of Diagnosed Cases with beta(t)",
+#        caption = "diagnosed over time")
+
+
+# p <- ggplot(df[df$people_type == "Diagnosed", ], aes(x = Time,
+#                               y = num_people)) + geom_line() +
+#   labs(title = TeX("Number of Diagnosed Cases with beta(t)")) +
+#   theme_bw()
+# 
+# q <- ggplot(df, aes(x = Time, y = num_people)) + geom_line(aes(col = people_type)) +
+#   labs(title = "Number of Cases by People Type with beta(t)")
+# 
+# 
+# fig <- ggplotly(p, tooltip = "text")
+# fig
+# 
+# fig <- fig %>%
+#   animation_slider(
+#     currentvalue = list(prefix = "Day ", font = list(color="red")))
+
+```
+
+https://www.datanovia.com/en/blog/gganimate-how-to-create-plots-with-beautiful-animation-in-r/
+
 
