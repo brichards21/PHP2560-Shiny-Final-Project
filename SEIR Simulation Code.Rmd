@@ -76,7 +76,7 @@ This is an example of our simulations and the plots!
 # max_q = NULL, 
 # max_j = NULL
 
-get_diagnosed <- function( e = 477, i = 286, q = 191, 
+get_diagnosed <- function(e = 477, i = 286, q = 191, 
                 j = 848, r = 1213, epsilon = (1/3)*(2/5),
 lambda = (1/3)*(3/5), delta = (15/100)*(1/21), 
 theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, b = (31 + t)/(22 + 5*t)) {
@@ -106,14 +106,23 @@ if (b == (31 + t)/(22 + 5*t)) {
 
 }
 
-all_data <- as.data.frame(cbind(Time = 1:days, Exposed = e, Infected = i, 
+all_data <- as.data.frame(cbind(Time = 1:days, Exposed = e, Infectives = i, 
                                 Quarantined = q, Diagnosed = j, Recovered = r))
+
+
+index <- seq(1, days, 2)
+
+all_data <- all_data[index, ] 
+
+rownames(all_data) <- 1:nrow(all_data)
+
+all_data <- all_data %>%
+pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
 
 return(all_data)
 }
 
 
-get_diagnosed()
 example_data <- get_diagnosed()
 
 ```
@@ -131,8 +140,7 @@ head(example_data)
 
 ```{r}
 
-df_full <- example_data %>%
-pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
+
 
 ```
 
@@ -150,7 +158,7 @@ ggplot(df[df$people_type == "Exposed", ], aes(x = Time,
                             y = num_people)) + geom_line() +
   labs(title = TeX("Number of Exposed Cases with $\\beta = 0.6781$"))
 
-ggplot(df[df$people_type == "Infected", ], aes(x = Time, 
+ggplot(df[df$people_type == "Infectives", ], aes(x = Time, 
                           y = num_people)) + geom_line() +
   labs(title = TeX("Number of Infected with $\\beta = 0.6781$"))
 
@@ -187,9 +195,16 @@ times_b <- length(grep(max_data$names, df_b$people_type))
 
 df_b <- df_b %>%
   mutate(max_num = rep(max_data$max_p, times_b))
+rownames(df_b) <- df_b$max_num
 
-ggplot(df_b) + geom_line(aes(x = Time, y = num_people, color = people_type, label = max_num)) + theme_minimal()+
+ggplot(df_b) + geom_line(aes(x = Time, y = num_people, color = people_type)) + theme_minimal()+
   theme(legend.title = element_blank()) 
+
+plot_max <- function(df_b) {
+  while (j < length(max_data$names))
+  p + geom_vline(xintercept = )
+  
+}
 ```
 
 
@@ -209,7 +224,13 @@ apply(df_full, 2, max)
 
 ```{r}
 # button that says run the simulation
-df_full
+df_full %>%
+  group_by(people_type) %>%
+  summarize(Time = Time, max(num_people))
+
+df_full %>%
+  filter(num_people %in% max_data$max_p)
+
 # function to run visual 
 df_full %>%
   mutate(max_num = rep(max_data$max_p, nrow(df_full)/length(max_data$names)) )
@@ -217,10 +238,8 @@ df_full %>%
 
 ```{r}
 
-length(grep(c("Exposed", "Infected", "Quarantined", "Diagnosed", "Recovered"), df_full$people_type))
-
 run_animation <- function(df_use) {
-  
+
 wide_dat <- df_use %>%
   pivot_wider(names_from = "people_type", values_from = "num_people")
 
@@ -231,41 +250,61 @@ max_data$names <- rownames(max_data)
 
 df_use <- accumulate_by(df_use, ~ Time) 
 
-times <- length(grep(max_data$names, df_use$people_type))
 
-df_use <- df_use %>%
+
+ times <- length(grep(max_data$names, df_use$people_type))
+ 
+ df_use <- df_use %>%
   mutate(max_num = rep(max_data$max_p, times))
+ 
+ df_use_check <- df_use %>%
+ filter(num_people %in% max_data$max_p)
 
-
-
-p <- ggplot(df_use, aes(frame = frame)) +
-  geom_line(aes(x = Time, y = num_people, color = people_type, label = max_num)) +
-  theme_minimal() +
-  theme(legend.title = element_blank())
-
-
-
-
-fig <- ggplotly(p)
-
-fig %>%
-  layout (
-    xaxis = list(
-      title = "Day",
-     # range = c()
-      zeroline = F
-    ),
-    yaxis = list(
-      title = "Number of People",
-      zeroline = F
-    ) %>%
-  animation_opts(
-    frame = 100,
-    transition = 0,
-    redraw = T
-   )
-  )
-
+ 
+ max_data$max_time <- unique(df_use_check$Time)
+ 
+  p <- ggplot(df_use, aes(frame = frame)) +
+   geom_line(aes(x = Time, y = num_people, color = people_type)) +
+   theme_minimal() +
+   theme(legend.title = element_blank())
+ 
+ p
+ 
+  j <- 1
+#  
+#  while(j <= nrow(max_data)){
+#    
+#    p <- p + geom_segment(x = max_data$max_time[j] , y = 0, 
+#                          xend = max_data$max_time[j], yend = max_data$max_p[j], linetype = "dashed",
+#                          col = "red")
+# 
+#    j <- j + 1
+# 
+#  }
+# 
+# 
+# 
+# fig <- ggplotly(p)
+# 
+# fig %>%
+#   layout (
+#     xaxis = list(
+#       title = "Day",
+#      # range = c()
+#       zeroline = F
+#     ),
+#     yaxis = list(
+#       title = "Number of People",
+#       zeroline = F
+#     ) %>%
+#   animation_opts(
+#     frame = 100,
+#     transition = 0,
+#     redraw = T
+#    )
+#   )
+# 
+# fig
 
 #%>%
 
