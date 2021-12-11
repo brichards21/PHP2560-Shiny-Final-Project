@@ -89,7 +89,7 @@ ui <- fluidPage(
                                                        sliderInput("sigma", "Quarenrined -> Diagnosed" , 0, 1, 1/3),
                                                        sliderInput("theta", "Infected -> Diagnosed" , 0, 1, 1/3), 
                                                        sliderInput("gamma", "Diagnosed -> Recovered" , 0, 1, 1/21), 
-                                                       sliderInput("k", "k", .1)),
+                                                       sliderInput("k", "k", 0, 1, .1)),
                                                 column(width = 4, offset = 2, 
                                                        p("This model assuumes that infectivity is a function of time, our model assumes 
                                                          the function, but a user may want to change the infectivity rate."), 
@@ -121,21 +121,21 @@ server <- function(input, output){
     # The first thing we need to do is have our randomness come into play on our conditional
     # panel 
     observeEvent(req(input$Whenstart == "R"), {
-        
-        updateSliderInput(inputId = "deathrate", value = runif(1))
-        updateSliderInput(inputId = "epsilon", value = runif(1))
-        updateSliderInput(inputId = "lambda", value = runif(1))
+        intial <- checkcondition(runif(1), runif(1), runif(1), runif(1), runif(1))
+        updateSliderInput(inputId = "deathrate", value = intial$deathrate)
+        updateSliderInput(inputId = "epsilon", value = intial$epsilon)
+        updateSliderInput(inputId = "lambda", value = intial$lambda)
         updateSliderInput(inputId = "sigma", value = runif(1))
-        updateSliderInput(inputId = "theta", value = runif(1))
-        updateSliderInput(inputId = "gamma", value = runif(1))
+        updateSliderInput(inputId = "theta", value = intial$theta)
+        updateSliderInput(inputId = "gamma", value = intial$gamma)
     })
     observeEvent(req(input$Whenstart != "R"), {
-        updateSliderInput(inputId = "deathrate", value = .5)
-        updateSliderInput(inputId = "epsilon", value = .5)
-        updateSliderInput(inputId = "lambda", value = .5)
-        updateSliderInput(inputId = "sigma", value = .5)
-        updateSliderInput(inputId = "theta", value = .5)
-        updateSliderInput(inputId = "gamma", value = .5)
+        updateSliderInput(inputId = "deathrate", value = (15/100)*(1/21))
+        updateSliderInput(inputId = "epsilon", value = (1/3)*(2/5))
+        updateSliderInput(inputId = "lambda", value = (1/3)*(3/5))
+        updateSliderInput(inputId = "sigma", value = 1/3)
+        updateSliderInput(inputId = "theta", value = 1/3)
+        updateSliderInput(inputId = "gamma", value = 1/21)
     })
     
     # Once the data is input we want to create our plot based on our data, 
@@ -147,47 +147,16 @@ server <- function(input, output){
     # How we do this, we make the run simulation button reactive if the parameters aren't valid
     # then we return an error to the user and prompt them to change their parameters 
     
-   inputdata <- data.frame()
+    
     
     # When we press the action button if the conditions are met we pass the 
     # data through to our function 
    
-   # When we observe 
-    observeEvent(req(input$Infection != "Y"), {
-    if(input$Whenstart == "R" | input$Whenstart == "M"){
-    simulationdata <- getdiagnosed(input$exposed, input$infectives, input$quarantined, 
-                                   input$diagnosed, input$recovered, input$epsilon,
-                                   input$lambda, input$delta, 
-                                   input$theta, input$sigma, input$gamma, input$k , b = (31 + t)/(22 + 5*t))
-    } else{
-    simulationdata <- getdiagnosed(input$exposed, input$infectives, 1, 
-                                   1, 1, input$epsilon,
-                                   input$lambda, input$delta, 
-                                   input$theta, input$sigma, input$gamma, input$k , b = (31 + t)/(22 + 5*t))
-    } 
-    })
+   # We observe if the parmeters are met through a reactive call 
     
-    observeEvent(req(input$Infection == "Y"), {
-        if(input$Whenstart == "R" | input$Whenstart == "M"){
-            simulationdata <- getdiagnosed(input$exposed, input$infectives, input$quarantined, 
-                                           input$diagnosed, input$recovered, input$epsilon,
-                                           input$lambda, input$delta, 
-                                           input$theta, input$sigma, input$gamma, input$k , input$infectivity)
-        } else{
-            simulationdata <- getdiagnosed(input$exposed, input$infectives, 1, 
-                                           1, 1, input$epsilon,
-                                           input$lambda, input$delta, 
-                                           input$theta, input$sigma, input$gamma, input$k , input$infectivity)
-        } 
-    })
-    # The function returns a data frame with time, exposed, infected, quarantined, 
-    # diagnosed and recovered 
-    # We want to plot what the user selects on the animated plots, so we will 
-    # filter to only include this and time 
-    simulationdata_filtered <- reactive({
-        simdf <- simulationdata()
-        return(simulationdata[df$study %in% input$selected_studies,])
-    })
+    
+    
+   
     
     # Next create a plot of the number of people in each class over time using 
     # an animated plot. 
