@@ -8,125 +8,197 @@
 #
 
 library(shiny)
-library(ggplot2)
-library(tidyverse)
-library(latex2exp)
 
-# this is the file name of the code Breanna uploaded
-# make sure to source the right file
-source("simulation_updated.R")
+#source("simulation_updated.R")
 
-# Define UI for application that draws a histogram
+
+
+
 ui <- fluidPage(
-
-    # Application title
-    titlePanel("Project"),
+    # Our App has 3 main tabs that the user will be able to explore 
     
-    p("At time 0, this is the number of individuals we have that are in each of the six categories."),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            
-            selectInput("timing",
-                        "Time",
-                        c("Start", "Middle")),
-            
-            numericInput("exposed",
-                      "Number of Individuals Exposed to COVID",
-                      411), # this is the default values
-            
-            numericInput("infectives",
-                      "Number of Individuals who are Infective",
-                      34),
-            
-            numericInput("quarantined",
-                      "Number of Individuals in Quarantine",
-                      0),
-            
-            numericInput("diagnosed",
-                      "Number of Individuals Diagnosed with COVID",
-                      0),
-            
-            numericInput("recovered",
-                      "Number of Individuals Recovered from COVID",
-                      0),
-            
-            checkboxInput("exp",
-                               "Exposed"),
-            
-            checkboxInput("inf",
-                               "Infectives"),
-            
-            checkboxInput("diag",
-                               "Diagnosed"),
-            
-            
-            
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           sliderInput("transmission_rate", "Transmission Rate:",
-                       min = 0, max = 1,
-                       value = 0.5, step = 0.1),
-           
-           sliderInput("exp_inf", "Exposed to Infected Rate:",
-                       min = 0, max = 1,
-                       value = 0.5),
-           
-           
-           plotOutput("test_plot"),
+    # Application title
+    titlePanel("How infectious disease spreads"),
+    
+    mainPanel( 
+        tabsetPanel(type = "tabs", 
+                    tabPanel("What is this app doing",
+                             h3("What does this app do?"),
+                             p("SARS is an infectious disease that spreads 
+                      via droplets spread through contact with an infected individual (Zhou et al., 2004). 
+                      This disease was identified in the early 2000s and due to its high infectivity was able 
+                      to spread quickly and internationally (Zhou et al., 2004). Through drastic public health 
+                      measures the spread of the disease was controled, but peaked mathematical modler's 
+                      interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading 
+                      the authors created a mathematical model that allows for them to predict the number of 
+                      indviduals that contracted SARS over a given amount of days (Zhou et al., 2004). 
+                      In their model they have a multitude of parameters that they estimate based on their 
+                      given data, to predict the number of indviduals diagnosed with SARS on a given day based 
+                      on the starting valuesand parameter values (Zhou et al., 2004). The authors utilize their 
+                      own data to estimate the model parameters, but we find that this model could be beneficial 
+                      for other similar infectious diseases. Thus we have created this app which allows for 
+                      public health officials to input parameters that were estimated based on their own data 
+                      to predict the number of sick, exposed or infected indviduals after t days."), 
+                             p("In this section we hope to have an interactive version of their model, where 
+                      a user can click on the box and there is a pop up that tells them what each 
+                     compartment is in the model"),
+                             p("Citation"),
+                             p("Zhou, Y., Ma, Z., &amp; Brauer, F. (2004). 
+                     A discrete epidemic model for SARS transmission and control in China. 
+                     Mathematical and Computer Modelling, 40(13), 1491–1506. https://doi.org/10.1016/j.mcm.2005.01.007 ")
+                    ),
+                    
+                    tabPanel("Set your parameters", 
+                             selectInput("Whenstart", "When do you want to start", c(Start = "S", Middle = "M", Random ="R")), 
+                             # We want a user to get different input options based on when they are starting
+                             # We use a conditional panel 
+                             conditionalPanel(
+                                 condition = "input.Whenstart == 'M'||input.Whenstart == 'R'", 
+                                 sidebarPanel(numericInput("exposed", "Number of Individuals Exposed to COVID",
+                                                           477),
+                                              numericInput("infectives",
+                                                           "Number of Individuals who are Infective",
+                                                           286), 
+                                              numericInput("quarantined",
+                                                           "Number of Individuals in Quarantine",
+                                                           191),
+                                              
+                                              numericInput("diagnosed",
+                                                           "Number of Individuals Diagnosed with COVID",
+                                                           848),
+                                              
+                                              numericInput("recovered",
+                                                           "Number of Individuals Recovered from COVID",
+                                                           1213))
+                                 
+                             ),
+                             conditionalPanel(
+                                 condition = "input.Whenstart == 'S'", 
+                                 sidebarPanel(numericInput("exposed", "Number of Individuals Exposed to COVID",
+                                                           411),
+                                              numericInput("infectives",
+                                                           "Number of Individuals who are Infective",
+                                                           286))
+                                 
+                             ),
+                             # We have escaped the conditional panels, but fear they return again 
+                             mainPanel(fluidRow(column(width=6, offset = 0,
+                                                       sliderInput("deathrate", "death rate" , 0, 1, (15/100)*(1/21)), 
+                                                       sliderInput("epsilon", "Exposed -> Infective" , 0, 1, (1/3)*(2/5)),
+                                                       sliderInput("lambda", "Exposed -> Quarentined" , 0, 1, (1/3)*(3/5)),
+                                                       sliderInput("sigma", "Quarenrined -> Diagnosed" , 0, 1, 1/3),
+                                                       sliderInput("theta", "Infected -> Diagnosed" , 0, 1, 1/3), 
+                                                       sliderInput("gamma", "Diagnosed -> Recovered" , 0, 1, 1/21), 
+                                                       sliderInput("k", "k", .1)),
+                                                column(width = 4, offset = 2, 
+                                                       p("This model assuumes that infectivity is a function of time, our model assumes 
+                                                         the function, but a user may want to change the infectivity rate."), 
+                                                       checkboxGroupInput("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y")),
+                                                       # If the user wants to chose an infectivity rate to a constant we let them
+                                                       conditionalPanel(
+                                                           condition = "input.Infection == 'Y'", 
+                                                           sliderInput("infectvity", "Infectivity Rate" , 0, 1, .5)
+                                                       ), 
+                                                       # This button is the key, when the user presses this button 
+                                                       # they run the simulation or are told to change their parameters
+                                                       actionButton("RunSim", "Run Simulation")))
+                             )
+                    ),
+                    tabPanel("Results", 
+                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infected", "Quaretined", "Diagnosed", "Recovered"))), 
+                                           mainPanel(plotOutput("test_plot")))
+                    )
         )
     )
 )
 
-# Define server logic required to draw a histogram
-server <- function(input, output) {
+
+
+
+# Define server logic required to get our plots and 
+server <- function(input, output){
     
-    output$test_plot <- renderPlot({
+    # The first thing we need to do is have our randomness come into play on our conditional
+    # panel 
+    observeEvent(req(input$Whenstart == "R"), {
         
-        # code to generate data
-        # we can change the various values of epsilon, lambda, delta, etc
-        # once we figure out our inputs
-        example_data <- get_diagnosed(e = input$exposed, i = input$infectives,
-                      q = input$quarantined, j = input$diagnosed, r = input$recovered,
-                      epsilon = (1/3)*(2/5), lambda = (1/3)*(3/5), delta = (15/100)*(1/21),
-                      theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.2,
-                      b = input$transmission_rate)
-        
-        
-        df <- example_data %>%
-            pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
-        
-        # returns empty plot if nothing is checked
-        p <- ggplot(data = df, aes(x = Time, y = num_people)) +
-            labs(title = "Number of Cases Over Time", ylab = "Number of People")
-        
-        # see if diagnosed is checked
-        if(input$diag) {
-            p <- p + geom_line(data = df[df$people_type == "Diagnosed", ],
-                               aes(x = Time, y = num_people, colour = "Diagnosed"))
-        }
-        # see if exposed is checked
-        if(input$exp) {
-            p <- p + geom_line(data = df[df$people_type == "Exposed", ],
-                               aes(x = Time, y = num_people, colour = "Exposed"))
-        }
-        # see if infected is checked
-        if(input$inf) {
-            p <- p + geom_line(data = df[df$people_type == "Infectives", ],
-                               aes(x = Time, y = num_people, colour = "Infectives"))
-        }
-        
-        p <- p  + guides(col=guide_legend(title="Group"))
-        
-        
-        return(p)
+        updateSliderInput(inputId = "deathrate", value = runif(1))
+        updateSliderInput(inputId = "epsilon", value = runif(1))
+        updateSliderInput(inputId = "lambda", value = runif(1))
+        updateSliderInput(inputId = "sigma", value = runif(1))
+        updateSliderInput(inputId = "theta", value = runif(1))
+        updateSliderInput(inputId = "gamma", value = runif(1))
     })
+    observeEvent(req(input$Whenstart != "R"), {
+        updateSliderInput(inputId = "deathrate", value = .5)
+        updateSliderInput(inputId = "epsilon", value = .5)
+        updateSliderInput(inputId = "lambda", value = .5)
+        updateSliderInput(inputId = "sigma", value = .5)
+        updateSliderInput(inputId = "theta", value = .5)
+        updateSliderInput(inputId = "gamma", value = .5)
+    })
+    
+    # Once the data is input we want to create our plot based on our data, 
+    # but the model has some parameters on what we can and can't input in terms 
+    # of our parameters, so we create a function that need to be met, 
+    # we can ensure that these are met with our randomly generated variables, but 
+    # we need to check a users input to make sure their parameters are valid for our model 
+    
+    # How we do this, we make the run simulation button reactive if the parameters aren't valid
+    # then we return an error to the user and prompt them to change their parameters 
+    
+   inputdata <- data.frame()
+    
+    # When we press the action button if the conditions are met we pass the 
+    # data through to our function 
+   
+   # When we observe 
+    observeEvent(req(input$Infection != "Y"), {
+    if(input$Whenstart == "R" | input$Whenstart == "M"){
+    simulationdata <- getdiagnosed(input$exposed, input$infectives, input$quarantined, 
+                                   input$diagnosed, input$recovered, input$epsilon,
+                                   input$lambda, input$delta, 
+                                   input$theta, input$sigma, input$gamma, input$k , b = (31 + t)/(22 + 5*t))
+    } else{
+    simulationdata <- getdiagnosed(input$exposed, input$infectives, 1, 
+                                   1, 1, input$epsilon,
+                                   input$lambda, input$delta, 
+                                   input$theta, input$sigma, input$gamma, input$k , b = (31 + t)/(22 + 5*t))
+    } 
+    })
+    
+    observeEvent(req(input$Infection == "Y"), {
+        if(input$Whenstart == "R" | input$Whenstart == "M"){
+            simulationdata <- getdiagnosed(input$exposed, input$infectives, input$quarantined, 
+                                           input$diagnosed, input$recovered, input$epsilon,
+                                           input$lambda, input$delta, 
+                                           input$theta, input$sigma, input$gamma, input$k , input$infectivity)
+        } else{
+            simulationdata <- getdiagnosed(input$exposed, input$infectives, 1, 
+                                           1, 1, input$epsilon,
+                                           input$lambda, input$delta, 
+                                           input$theta, input$sigma, input$gamma, input$k , input$infectivity)
+        } 
+    })
+    # The function returns a data frame with time, exposed, infected, quarantined, 
+    # diagnosed and recovered 
+    # We want to plot what the user selects on the animated plots, so we will 
+    # filter to only include this and time 
+    simulationdata_filtered <- reactive({
+        simdf <- simulationdata()
+        return(simulationdata[df$study %in% input$selected_studies,])
+    })
+    
+    # Next create a plot of the number of people in each class over time using 
+    # an animated plot. 
+    
+    
+    # We also want to create some reactive output that tells the user what the maximum number 
+    # day when the maximum 
+    
+    
 }
-
-
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
