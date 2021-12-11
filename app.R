@@ -11,7 +11,7 @@ library(shiny)
 
 #source("simulation_updated.R")
 
-
+source("sixtynine.R")
 
 
 ui <- fluidPage(
@@ -50,7 +50,6 @@ ui <- fluidPage(
                     
                     tabPanel("Set your parameters", 
                              selectInput("Whenstart", "When do you want to start", c(Start = "S", Middle = "M", Random ="R")), 
-                             img(src = "SARSmodel_img.png", height = 140, width = 400),
                              # We want a user to get different input options based on when they are starting
                              # We use a conditional panel 
                              conditionalPanel(
@@ -94,7 +93,7 @@ ui <- fluidPage(
                                                 column(width = 4, offset = 2, 
                                                        p("This model assuumes that infectivity is a function of time, our model assumes 
                                                          the function, but a user may want to change the infectivity rate."), 
-                                                       checkboxGroupInput("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y")),
+                                                       checkboxGroupInput("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y", No = "N")),
                                                        # If the user wants to chose an infectivity rate to a constant we let them
                                                        conditionalPanel(
                                                            condition = "input.Infection == 'Y'", 
@@ -106,7 +105,7 @@ ui <- fluidPage(
                              )
                     ),
                     tabPanel("Results", 
-                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infected", "Quaretined", "Diagnosed", "Recovered"))), 
+                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infective", "Quarantined", "Diagnosed", "Recovered"))), 
                                            mainPanel(plotOutput("test_plot")))
                     )
         )
@@ -139,24 +138,44 @@ server <- function(input, output){
         updateSliderInput(inputId = "gamma", value = 1/21)
     })
     
-    # Once the data is input we want to create our plot based on our data, 
-    # but the model has some parameters on what we can and can't input in terms 
-    # of our parameters, so we create a function that need to be met, 
-    # we can ensure that these are met with our randomly generated variables, but 
-    # we need to check a users input to make sure their parameters are valid for our model 
     
-    # How we do this, we make the run simulation button reactive if the parameters aren't valid
-    # then we return an error to the user and prompt them to change their parameters 
+    # Apply our simulation function based on the parameters the user inputs 
     
+    ModelValues <- reactive({
+        funinput <- as.numeric(c(input$epsilon ,
+                                 input$lambda, input$delta, 
+                                 input$theta, input$sigma, input$gamma, input$k))
+        nonfuninput <- as.numeric(c(input$epsilon ,
+                                    input$lambda, input$delta, 
+                                    input$theta, input$sigma, input$gamma, input$k, input$infectivity))
+        if (input$Infection == 'Y' & input$Whenstart == "S") {
+            get_diagnosed(input$exposed, input$infectives, 1, 
+                          1, 1, nonfuninput[1] ,
+                          nonfuninput[2], nonfuninput[3], 
+                          nonfuninput[4], nonfuninput[5], nonfuninput[6], nonfuninput[7], nonfuninput[8])
+        } else if (input$Infection == 'N' & input$Whenstart == "S"){
+            get_diagnosed(input$exposed, input$infectives, 1, 
+                          1, 1, funinput[1] ,
+                          funinput[2], funinput[3], 
+                          funinput[4], funinput[5], funinput[6], funinput[7])
+            
+        } else if (input$Infection == 'Y' & (input$Whenstart == 'M' | input$Whenstart == 'R')){
+            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
+                          input$diagnosed, input$recovered, nonfuninput[1] ,
+                          nonfuninput[2], nonfuninput[3], 
+                          nonfuninput[4], nonfuninput[5], nonfuninput[6], nonfuninput[7], nonfuninput[8])
+        } else if (input$Infection == 'N' & (input$Whenstart == 'M' | input$Whenstart == 'R')){
+            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
+                          input$diagnosed, input$recovered, nonfuninput[1] ,
+                          nonfuninput[2], nonfuninput[3], 
+                          nonfuninput[4], nonfuninput[5], nonfuninput[6], nonfuninput[7], nonfuninput[8])
+        }
     
+    })
     
-    # When we press the action button if the conditions are met we pass the 
-    # data through to our function 
-   
-   # We observe if the parmeters are met through a reactive call 
+    # Now we have the data and can 
     
-    
-    
+    ModelValues <- ModelValues %>% filter(people_type %in% input$lines)
    
     
     # Next create a plot of the number of people in each class over time using 
