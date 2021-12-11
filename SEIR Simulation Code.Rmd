@@ -71,35 +71,19 @@ This is an example of our simulations and the plots!
 
 ```{r}
 
-
+# max_e = NULL,
+# max_i = NULL, 
+# max_q = NULL, 
+# max_j = NULL
 
 get_diagnosed <- function( e = 477, i = 286, q = 191, 
                 j = 848, r = 1213, epsilon = (1/3)*(2/5),
 lambda = (1/3)*(3/5), delta = (15/100)*(1/21), 
-theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, b = (31 + t)/(22 + 5*t), max_e = NULL,
-max_i = NULL, max_q = NULL, max_j = NULL) {
+theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, b = (31 + t)/(22 + 5*t)) {
+  
+#' get_diagnosed
 
 days <- 400
-
-if (!is.null(max_e)) {
-e <- runif(1, 1, max_e)
-}
-
-if (!is.null(max_i)) {
-i <- runif(1, 1, max_i)
-}
-
-if (!is.null(max_q)) {
-q <- runif(1, 1, max_q)
-}
-
-if (!is.null(max_j)) {
-j <- runif(1, 1, max_j)
-}
-
-if (!is.null(max_r)){
-r <- runif(1, 1, max_r)
-}
 
 
 for (t in 1:(days - 1)) {
@@ -122,7 +106,7 @@ if (b == (31 + t)/(22 + 5*t)) {
 
 }
 
-all_data <- as.data.frame(cbind(Time = 1:days, Exposed = e, Infectives = i, 
+all_data <- as.data.frame(cbind(Time = 1:days, Exposed = e, Infected = i, 
                                 Quarantined = q, Diagnosed = j, Recovered = r))
 
 return(all_data)
@@ -166,9 +150,9 @@ ggplot(df[df$people_type == "Exposed", ], aes(x = Time,
                             y = num_people)) + geom_line() +
   labs(title = TeX("Number of Exposed Cases with $\\beta = 0.6781$"))
 
-ggplot(df[df$people_type == "Infectives", ], aes(x = Time, 
+ggplot(df[df$people_type == "Infected", ], aes(x = Time, 
                           y = num_people)) + geom_line() +
-  labs(title = TeX("Number of Infectives with $\\beta = 0.6781$"))
+  labs(title = TeX("Number of Infected with $\\beta = 0.6781$"))
 
 ggplot(df[df$people_type == "Quarantined", ], aes(x = Time, 
                             y = num_people)) + geom_line() +
@@ -197,28 +181,74 @@ ggplot(df, aes(x = Time, y = num_people)) + geom_line(aes(col = people_type)) +
 library(plotly)
 library(gganimate)
 
+df_b <- accumulate_by(df_full, ~ Time) 
+
+times_b <- length(grep(max_data$names, df_b$people_type))
+
+df_b <- df_b %>%
+  mutate(max_num = rep(max_data$max_p, times_b))
+
+ggplot(df_b) + geom_line(aes(x = Time, y = num_people, color = people_type, label = max_num)) + theme_minimal()+
+  theme(legend.title = element_blank()) 
+```
 
 
+```{r}
+wide_df_full <- df_full %>%
+  pivot_wider(names_from = "people_type", values_from = "num_people")
+
+max_data <- data.frame(max_p = apply(wide_df_full[, -1], 2, max)) 
+
+max_data$names <- rownames(max_data) 
+
+  
+
+apply(df_full, 2, max)
+```
+
+
+```{r}
 # button that says run the simulation
-
+df_full
 # function to run visual 
+df_full %>%
+  mutate(max_num = rep(max_data$max_p, nrow(df_full)/length(max_data$names)) )
+```
+
+```{r}
+
+length(grep(c("Exposed", "Infected", "Quarantined", "Diagnosed", "Recovered"), df_full$people_type))
+
 run_animation <- function(df_use) {
+  
+wide_dat <- df_use %>%
+  pivot_wider(names_from = "people_type", values_from = "num_people")
 
-df_use <- accumulate_by(df_use, ~ Time)
+max_data <- data.frame(max_p = apply(wide_dat[, -1], 2, max)) 
 
-df_use %>%
-  plot_ly(
-    x = ~ Time,
-    y = ~ num_people,
-    split = ~ people_type,
-    frame = ~ frame,
-    type = 'scatter',
-    text = ~ num_people,
-    mode = 'lines',
-    hoverinfo = "text",
-    line = list(simplyfy = F)
-  ) %>%
-  add_markers(ids = ~ num_people) %>%
+max_data$names <- rownames(max_data)
+
+
+df_use <- accumulate_by(df_use, ~ Time) 
+
+times <- length(grep(max_data$names, df_use$people_type))
+
+df_use <- df_use %>%
+  mutate(max_num = rep(max_data$max_p, times))
+
+
+
+p <- ggplot(df_use, aes(frame = frame)) +
+  geom_line(aes(x = Time, y = num_people, color = people_type, label = max_num)) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+
+
+
+fig <- ggplotly(p)
+
+fig %>%
   layout (
     xaxis = list(
       title = "Day",
@@ -228,19 +258,79 @@ df_use %>%
     yaxis = list(
       title = "Number of People",
       zeroline = F
-    )
-  ) %>%
+    ) %>%
   animation_opts(
     frame = 100,
     transition = 0,
     redraw = T
-  ) %>%
-  animation_slider(
-    hide = F
-  ) %>%
-  animation_button(
-    x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+   )
   )
+
+
+#%>%
+
+#%>%
+  # add_markers(ids = ~ num_people) %>%
+  # layout (
+  #   xaxis = list(
+  #     title = "Day",
+  #    # range = c()
+  #     zeroline = F
+  #   ),
+  #   yaxis = list(
+  #     title = "Number of People",
+  #     zeroline = F
+  #   )
+  # ) %>%
+  # animation_opts(
+  #   frame = 100,
+  #   transition = 0,
+  #   redraw = T
+  # ) %>%
+  # animation_slider(
+  #   hide = F
+  # ) %>%
+  # animation_button(
+  #   x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+  # )
+
+
+# df_use %>%
+#   plot_ly(
+#     x = ~ Time,
+#     y = ~ num_people,
+#     split = ~ people_type,
+#     frame = ~ frame,
+#     #type = 'scatter',
+#     text = ~ round(num_people),
+#     mode = 'lines',
+#     hoverinfo = "text",
+#     line = list(simplyfy = F)
+#   ) %>%
+#   add_markers(ids = ~ num_people) %>%
+#   layout (
+#     xaxis = list(
+#       title = "Day",
+#      # range = c()
+#       zeroline = F
+#     ),
+#     yaxis = list(
+#       title = "Number of People",
+#       zeroline = F
+#     )
+#   ) %>%
+#   animation_opts(
+#     frame = 100,
+#     transition = 0,
+#     redraw = T
+#   ) %>%
+#   animation_slider(
+#     hide = F
+#   ) %>%
+#   animation_button(
+#     x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+#   )
+
 }
 
 
@@ -284,4 +374,22 @@ run_animation(df_full)
 
 https://www.datanovia.com/en/blog/gganimate-how-to-create-plots-with-beautiful-animation-in-r/
 
+
+
+
+```{r}
+
+library(plotly)
+library(ggplot2)
+
+df <- diamonds[sample(1:nrow(diamonds), size = 1000),]
+
+p <- ggplot(df, aes(carat, price)) +
+      geom_point() +
+      theme(axis.ticks = element_line(size = 10))
+
+ggplotly(p)
+  
+
+```
 

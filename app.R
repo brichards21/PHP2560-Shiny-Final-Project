@@ -50,6 +50,7 @@ ui <- fluidPage(
                     
                     tabPanel("Set your parameters", 
                              selectInput("Whenstart", "When do you want to start", c(Start = "S", Middle = "M", Random ="R")), 
+                             img(src = "SARSmodel_img.png", height = 140, width = 400),
                              # We want a user to get different input options based on when they are starting
                              # We use a conditional panel 
                              conditionalPanel(
