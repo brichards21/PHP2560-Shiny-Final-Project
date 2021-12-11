@@ -106,15 +106,9 @@ if (b == (31 + t)/(22 + 5*t)) {
 
 }
 
-all_data <- as.data.frame(cbind(Time = 1:days, Exposed = e, Infectives = i, 
+all_data <- data.frame(cbind(Time = 1:days, Exposed = e, Infectives = i, 
                                 Quarantined = q, Diagnosed = j, Recovered = r))
 
-
-index <- seq(1, days, 2)
-
-all_data <- all_data[index, ] 
-
-rownames(all_data) <- 1:nrow(all_data)
 
 all_data <- all_data %>%
 pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
@@ -123,7 +117,7 @@ return(all_data)
 }
 
 
-example_data <- get_diagnosed()
+df_full <- get_diagnosed()
 
 ```
 
@@ -205,6 +199,7 @@ plot_max <- function(df_b) {
   p + geom_vline(xintercept = )
   
 }
+
 ```
 
 
@@ -260,51 +255,52 @@ df_use <- accumulate_by(df_use, ~ Time)
  df_use_check <- df_use %>%
  filter(num_people %in% max_data$max_p)
 
+ print(df_use_check)
  
  max_data$max_time <- unique(df_use_check$Time)
- 
+
   p <- ggplot(df_use, aes(frame = frame)) +
    geom_line(aes(x = Time, y = num_people, color = people_type)) +
    theme_minimal() +
    theme(legend.title = element_blank())
  
- p
+ 
  
   j <- 1
-#  
-#  while(j <= nrow(max_data)){
-#    
-#    p <- p + geom_segment(x = max_data$max_time[j] , y = 0, 
-#                          xend = max_data$max_time[j], yend = max_data$max_p[j], linetype = "dashed",
-#                          col = "red")
-# 
-#    j <- j + 1
-# 
-#  }
-# 
-# 
-# 
-# fig <- ggplotly(p)
-# 
-# fig %>%
-#   layout (
-#     xaxis = list(
-#       title = "Day",
-#      # range = c()
-#       zeroline = F
-#     ),
-#     yaxis = list(
-#       title = "Number of People",
-#       zeroline = F
-#     ) %>%
-#   animation_opts(
-#     frame = 100,
-#     transition = 0,
-#     redraw = T
-#    )
-#   )
-# 
-# fig
+
+ while(j <= nrow(max_data)){
+
+   p <- p + geom_segment(x = max_data$max_time[j] , y = 0,
+                         xend = max_data$max_time[j], yend = max_data$max_p[j], linetype = "dashed",
+                         col = "red")
+
+   j <- j + 1
+
+ }
+
+
+
+fig <- ggplotly(p)
+
+fig %>%
+  layout (
+    xaxis = list(
+      title = "Day",
+     # range = c()
+      zeroline = F
+    ),
+    yaxis = list(
+      title = "Number of People",
+      zeroline = F
+    ) %>%
+  animation_opts(
+    frame = 25,
+    transition = 0,
+    redraw = T
+   )
+  )
+
+fig
 
 #%>%
 
@@ -359,7 +355,7 @@ df_use <- accumulate_by(df_use, ~ Time)
 #     )
 #   ) %>%
 #   animation_opts(
-#     frame = 100,
+#     frame = 50,
 #     transition = 0,
 #     redraw = T
 #   ) %>%
