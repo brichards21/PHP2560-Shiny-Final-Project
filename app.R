@@ -9,9 +9,12 @@
 
 library(shiny)
 library(plotly)
-#source("simulation_updated.R")
+library(ggplot2)
+library(tidyr)
 
 source("sixtynine.R")
+source("run_animation.R")
+source("checkcondition.R")
 
 
 ui <- fluidPage(
@@ -23,7 +26,8 @@ ui <- fluidPage(
     mainPanel( 
         tabsetPanel(type = "tabs", 
                     tabPanel("What is this app doing",
-                             img(src = "SARSmodel_img", height = 250, width = 400),
+                             img(src = "SARSmodel_img.png", height = 350, width = 788),
+                             actionButton("explanation", "What does this mean?"),
                              h3("What does this app do?"),
                              p("SARS is an infectious disease that spreads 
                       via droplets spread through contact with an infected individual (Zhou et al., 2004). 
@@ -121,6 +125,20 @@ server <- function(input, output){
     
     # The first thing we need to do is have our randomness come into play on our conditional
     # panel 
+    observeEvent(input$explanation, {
+      
+      showModal(modalDialog(
+        title = "Parameters",
+        
+        tags$div(
+          "- bullet 1", 
+          tags$br(),
+          "- bullet 2",
+          tags$br(),
+        )
+      ))
+    })
+      
     observeEvent(req(input$Whenstart == "R"), {
         intial <- checkcondition(runif(1), runif(1), runif(1), runif(1), runif(1))
         updateSliderInput(inputId = "delta", value = intial$delta)
