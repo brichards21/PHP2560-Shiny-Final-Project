@@ -8,7 +8,7 @@
 #
 
 library(shiny)
-
+library(plotly)
 #source("simulation_updated.R")
 
 source("sixtynine.R")
@@ -107,7 +107,7 @@ ui <- fluidPage(
                     ),
                     tabPanel("Results", 
                              sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"), selected = "Exposed")), 
-                                           mainPanel(plotOutput("test_plot")))
+                                           mainPanel(plotlyOutput("test_plot")))
                     )
         )
     )
@@ -191,13 +191,8 @@ server <- function(input, output){
     
     Newdf <- reactive({ ModelValues() %>% filter(people_type %in% input$lines) })
     
-    output$test_plot <- renderPlot({
-        mi <- Newdf()
-        j <- max(mi[,3])+25
-    p <- ggplot(data = mi, aes(x= Time, y = num_people, color= people_type)) + 
-         geom_line() +
-        scale_y_continuous(limits=c(0,j))
-    return(p)
+    output$test_plot <- renderPlotly({
+       run_animation(Newdf())
     }) 
     
    
