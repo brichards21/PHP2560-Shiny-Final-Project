@@ -1,0 +1,14 @@
+name: PHP2560-Shiny-Final-Project
+title: PHP2560-Shiny-Final-Project
+username:
+account: nliux
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5312588
+bundleId: 5363041
+url: https://nliux.shinyapps.io/PHP2560-Shiny-Final-Project/
+when: 1639330406.09878
+lastSyncTime: 1639330406.09879
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: IMG_3245.jpg|IMG_5302.pdf|README.md|README.pdf|README.Rmd|results_shiny/.DS_Store|results_shiny/Breanna.R|SEIR Simulation Code.Rmd|Shiny_sketch.pdf|www/.DS_Store

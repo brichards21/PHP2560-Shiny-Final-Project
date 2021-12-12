@@ -15,6 +15,7 @@ library(tidyr)
 source("sixtynine.R")
 source("run_animation.R")
 source("checkcondition.R")
+source("create_table.R")
 
 
 ui <- fluidPage(
@@ -111,7 +112,8 @@ ui <- fluidPage(
                     ),
                     tabPanel("Results", 
                              sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"), selected = "Exposed")), 
-                                           mainPanel(plotlyOutput("test_plot")))
+                                           mainPanel(plotlyOutput("test_plot"),
+                                                     tableOutput("df")))
                     )
         )
     )
@@ -209,18 +211,22 @@ server <- function(input, output){
     
     Newdf <- reactive({ ModelValues() %>% filter(people_type %in% input$lines) })
     
+    
+    
+    # Next create a plot of the number of people in each class over time using 
+    # an animated plot. 
     output$test_plot <- renderPlotly({
        run_animation(Newdf())
     }) 
     
-   
-    
-    # Next create a plot of the number of people in each class over time using 
-    # an animated plot. 
-    
     
     # We also want to create some reactive output that tells the user what the maximum number 
     # day when the maximum 
+    output$df <- renderTable({
+      d <- create_table(Newdf())
+      return(d)
+    })
+    
     
     
 }
