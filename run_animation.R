@@ -27,7 +27,7 @@ run_animation <- function(df_use) {
   
   fig <- ggplotly(p)
   
-  fig %>%
+  fig <- fig %>%
     layout (
       xaxis = list(
         title = "Day",
@@ -46,8 +46,7 @@ run_animation <- function(df_use) {
     )
   
   
+  return(fig)
   
-  
-
   
 }
