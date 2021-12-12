@@ -9,110 +9,158 @@
 
 library(shiny)
 library(plotly)
-library(ggplot2)
-library(tidyr)
+#source("simulation_updated.R")
 
-source("sixtynine.R")
-source("run_animation.R")
-source("checkcondition.R")
-source("create_table.R")
+#source("ourfunctions.R")
 
 
 ui <- fluidPage(
     # Our App has 3 main tabs that the user will be able to explore 
+    # The first is a tab that explains the model we are implementing
+    # The second tab allows the user to set the parameters
+    # The third gives them the output of a plot, table of max values they selected and text that explains
     
     # Application title
-    titlePanel("How infectious disease spreads"),
+    titlePanel("The spread of infectious disease"),
     
     mainPanel( 
+        # Tab to explain the simulation 
         tabsetPanel(type = "tabs", 
                     tabPanel("What is this app doing",
-                             img(src = "SARSmodel_img.png", height = 350, width = 788),
-                             actionButton("explanation", "What does this mean?"),
                              h3("What does this app do?"),
                              p("SARS is an infectious disease that spreads 
-                      via droplets spread through contact with an infected individual (Zhou et al., 2004). 
-                      This disease was identified in the early 2000s and due to its high infectivity was able 
-                      to spread quickly and internationally (Zhou et al., 2004). Through drastic public health 
-                      measures the spread of the disease was controled, but peaked mathematical modler's 
-                      interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading 
-                      the authors created a mathematical model that allows for them to predict the number of 
-                      indviduals that contracted SARS over a given amount of days (Zhou et al., 2004). 
-                      In their model they have a multitude of parameters that they estimate based on their 
-                      given data, to predict the number of indviduals diagnosed with SARS on a given day based 
-                      on the starting valuesand parameter values (Zhou et al., 2004). The authors utilize their 
-                      own data to estimate the model parameters, but we find that this model could be beneficial 
-                      for other similar infectious diseases. Thus we have created this app which allows for 
-                      public health officials to input parameters that were estimated based on their own data 
-                      to predict the number of sick, exposed or infected indviduals after t days."), 
-                             p("In this section we hope to have an interactive version of their model, where 
-                      a user can click on the box and there is a pop up that tells them what each 
-                     compartment is in the model"),
+                                via droplets spread through contact with an infected individual (Zhou et al., 2004). 
+                                This disease was identified in the early 2000s and due to its high infectivity was able 
+                                to spread quickly and internationally (Zhou et al., 2004). Through drastic public health 
+                                measures the spread of the disease was controled, but peaked mathematical modler's 
+                                interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading 
+                                the authors created a mathematical model that allows for them to predict the number of 
+                                indviduals that contracted SARS over a given amount of days (Zhou et al., 2004). 
+                                In their model they have a multitude of parameters that they estimate based on their 
+                                given data, to predict the number of indviduals diagnosed with SARS on a given day based 
+                                on the starting valuesand parameter values (Zhou et al., 2004). The authors utilize their 
+                                own data to estimate the model parameters, but we find that this model could be beneficial 
+                                for other similar infectious diseases. Thus we have created this app which allows for 
+                                public health officials to input parameters that were estimated based on their own data 
+                                to predict the number of sick, exposed or infected indviduals after t days. 
+                               "),
+                             h3("How we implement this model"),
+                             p("In order to create an app with the greatest utility possible, we 
+                               wanted the user to be able to be able to start at the onset of an epidemic, 
+                               the middle of one or if the user is unsure of the parameters they start in the middle 
+                               with ranomly generated parameters. The number of people in each of the model
+                               comparatments when starting in the middle or random is the same as given in the paper (Zhou et al., 2004).
+                               We make an assumption that when the pandemic is starting that there will be 50 indviduals in the 
+                               quarantine, diagnosed and recovered compartments."),
+                             h3("User Guide"),
+                             p("First things first, this model is complicated, with a lot of parameters, so to get a better picture 
+                               of how this works please click on the Visual Representation tab, which allows for 
+                               you to see the model drawn out from the Zhou et al., paper with a button that tells you about the
+                               parameters (2004). After you have a good understanding of the model and what we refer to as these 
+                               parameters please go to the parameters tab and select what you want, start, middle, or 
+                               a simulation with random parameters. Adjust the inputs to fit your data or, if you want you
+                               want to simulate using the parameters Zhou. et al, estimated  eave them as default (2004). Once 
+                               you're all set please hit the run simulation button, and go to the results tab this will 
+                               display an animated plot and table that contains the day with the most indviduals
+                               for the compartments you want to explore. If you want to see multiple lines at one time it is 
+                               best to check all lines at once, if you check a new compartment while the 
+                               animiation is running it will resload the graph in the middle 
+                               of the animation. If you want to update this simulation then 
+                               return to the parameters tab and adjust and once you're ready hit the run simulation 
+                               button and you will get new results."), 
                              p("Citation"),
                              p("Zhou, Y., Ma, Z., &amp; Brauer, F. (2004). 
                      A discrete epidemic model for SARS transmission and control in China. 
-                     Mathematical and Computer Modelling, 40(13), 1491–1506. https://doi.org/10.1016/j.mcm.2005.01.007 ")
-                    ),
-                    
+                     Mathematical and Computer Modelling, 40(13), 1491–1506. https://doi.org/10.1016/j.mcm.2005.01.007 "),
+                             p("This app was created by Breanna Richards, Nancy Liu and Tim Hedspeth for PHP 2560")
+                           ), 
+                    tabPanel("Visual Respresntation",
+                             h3("What does this model look like"), 
+                             img(src = "SARSmodel_img.png", height = 250, width = 400),
+                             actionButton("explanation", "What does this mean?")
+                             ), 
                     tabPanel("Set your parameters", 
                              selectInput("Whenstart", "When do you want to start", c(Start = "S", Middle = "M", Random ="R")), 
+                             
                              # We want a user to get different input options based on when they are starting
                              # We use a conditional panel 
+                             
                              conditionalPanel(
                                  condition = "input.Whenstart == 'M'||input.Whenstart == 'R'", 
-                                 sidebarPanel(numericInput("exposed", "Number of Individuals Exposed to COVID",
-                                                           477),
-                                              numericInput("infectives",
+                                 sidebarPanel(numericInput("exposed1", "Number of Individuals Exposed to COVID",
+                                                           477, min = 0),
+                                              numericInput("infectives1",
                                                            "Number of Individuals who are Infective",
-                                                           286), 
-                                              numericInput("quarantined",
+                                                           286, min = 0), 
+                                              numericInput("quarantined1",
                                                            "Number of Individuals in Quarantine",
-                                                           191),
+                                                           191, min = 0),
                                               
-                                              numericInput("diagnosed",
+                                              numericInput("diagnosed1",
                                                            "Number of Individuals Diagnosed with COVID",
-                                                           848),
+                                                           848, min = 0),
                                               
-                                              numericInput("recovered",
+                                              numericInput("recovered1",
                                                            "Number of Individuals Recovered from COVID",
-                                                           1213))
+                                                           1213, min = 0))
                                  
-                             ),
-                             conditionalPanel(
+                                             ),
+                              conditionalPanel(
                                  condition = "input.Whenstart == 'S'", 
-                                 sidebarPanel(numericInput("exposed", "Number of Individuals Exposed to COVID",
-                                                           411),
-                                              numericInput("infectives",
+                                 sidebarPanel(numericInput("exposed2", "Number of Individuals Exposed to COVID",
+                                                           411, min = 0),
+                                              numericInput("infectives2",
                                                            "Number of Individuals who are Infective",
-                                                           286))
+                                                           286, min = 0), 
+                                              numericInput("quarantined2",
+                                                           "Number of Individuals in Quarantine",
+                                                           50, min = 0, max = 100),
+                                              
+                                              numericInput("diagnosed2",
+                                                           "Number of Individuals Diagnosed with COVID",
+                                                           50, min = 0, max = 100),
+                                              
+                                              numericInput("recovered1",
+                                                           "Number of Individuals Recovered from COVID",
+                                                           50, min = 0, max = 100), 
+                                              p("We assume that 50 people are in these categories at the start, 
+                                                but you may update them, since this is the start we limit to
+                                                100 in these categories"))
                                  
-                             ),
-                             # We have escaped the conditional panels, but fear they return again 
-                             mainPanel(fluidRow(column(width=6, offset = 0,
+                                              ),
+                             
+                             # The parameters can be changed for any of the start times and once this 
+                              mainPanel(fluidRow(column(width=5, offset = 0,
                                                        sliderInput("delta", "death rate" , 0, 1, (15/100)*(1/21)), 
                                                        sliderInput("epsilon", "Exposed -> Infective" , 0, 1, (1/3)*(2/5)),
                                                        sliderInput("lambda", "Exposed -> Quarentined" , 0, 1, (1/3)*(3/5)),
                                                        sliderInput("sigma", "Quarenrined -> Diagnosed" , 0, 1, 1/3),
-                                                       sliderInput("theta", "Infected -> Diagnosed" , 0, 1, 1/3), 
+                                                       sliderInput("theta", "Infected -> Diagnosed" , 0, 1, 1/3)), 
+                                                column(width = 5, offset = 2,
                                                        sliderInput("gamma", "Diagnosed -> Recovered" , 0, 1, 1/21), 
-                                                       sliderInput("k", "k", 0, 1, .1)),
-                                                column(width = 4, offset = 2, 
-                                                       p("This model assuumes that infectivity is a function of time, our model assumes 
-                                                         the function, but a user may want to change the infectivity rate."), 
-                                                       radioButtons("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y", No = "N")),
-                                                       # If the user wants to chose an infectivity rate to a constant we let them
+                                                       sliderInput("k", "k", 0, 1, .1),
+                                                       p("This model assumes that infectivity is a function of time, our model assumes 
+                                                         the function, but you can make it constant if you would like."), 
+                                                       radioButtons("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y", No = "N"), selected = "N"),
+                                                       # If the user wants to change the infectivity rate to a constant we let them, but default to 
+                                                       # using the function 
                                                        conditionalPanel(
                                                            condition = "input.Infection == 'Y'", 
                                                            sliderInput("infectvity", "Infectivity Rate" , 0, 1, .5)
                                                        ), 
                                                        # This button is the key, when the user presses this button 
                                                        # they run the simulation or are told to change their parameters
-                                                       ))
-                             )
+                                                       p("When you're set with your parmaters hit the button below and go to results"),
+                                                       actionButton("RunSim", "Run Simulation")), 
+                                                      ))
                     ),
+                    
+                    # This panel will display the results in an animated plot and will give a table 
                     tabPanel("Results", 
                              sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"), selected = "Exposed")), 
-                                           mainPanel(plotlyOutput("test_plot"),
+                                           mainPanel(p("Plese note that the graph may take a minute to load and reset"),
+                                                     plotlyOutput("test_plot"), 
+                                                     #textOutput("title"), 
                                                      tableOutput("df")))
                     )
         )
@@ -125,23 +173,27 @@ ui <- fluidPage(
 # Define server logic required to get our plots and 
 server <- function(input, output){
     
-    # The first thing we need to do is have our randomness come into play on our conditional
-    # panel 
+    # This shows the parameters of the model in the first tab when they click the action button 
     observeEvent(input$explanation, {
-      
-      showModal(modalDialog(
-        title = "Parameters",
         
-        tags$div(
-          "- bullet 1", 
-          tags$br(),
-          "- bullet 2",
-          tags$br(),
-        )
-      ))
+        showModal(modalDialog(
+            title = "Parameters",
+            
+            tags$div(
+                "- bullet 1", 
+                tags$br(),
+                "- bullet 2",
+                tags$br(),
+            )
+        ))
     })
-      
+    
+    
+    
+    # The first thing we need to do is have our randomness come into play on our conditional
+    # panel, the model assumes that some parameters cant have a sum greater than 1 
     observeEvent(req(input$Whenstart == "R"), {
+        
         intial <- checkcondition(runif(1), runif(1), runif(1), runif(1), runif(1))
         updateSliderInput(inputId = "delta", value = intial$delta)
         updateSliderInput(inputId = "epsilon", value = intial$epsilon)
@@ -162,70 +214,78 @@ server <- function(input, output){
     
     # Apply our simulation function based on the parameters the user inputs 
   
-    # Create a validation parameter 
 
-    
-    
-    ModelValues <- reactive({
+    ModelValues <- eventReactive(input$RunSim, {
+        
+        # First validate that the model assumptions in terms of addition of two parmaters are met 
+        
         validate(
             need(sum(input$epsilon, input$lambda) <= 1, "The sum of Exposed -> Infected and Exposed -> Quarantined should be less than 1"), 
             need(sum(input$deathrate, input$theta) <= 1, "The sum of deathrate and Infected -> Diagnosed should be less than 1"), 
-            need(sum(input$deathrate, input$theta) <= 1, "The sum of deathrate and Diagnosed -> Recovered should be less than 1")
+            need(sum(input$deathrate, input$gamma) <= 1, "The sum of deathrate and Diagnosed -> Recovered should be less than 1")
         )
+        
+        # We now check to see what time and infection rate the users have 
+        # This allows us to run our model for the correct parameters
+        
         if (input$Infection == 'Y' & input$Whenstart == 'S') {
-            get_diagnosed(input$exposed, input$infectives, 50, 
-                          50, 50, input$epsilon,
+            get_diagnosed(input$exposed2, input$infectives2, input$quarantined2, 
+                          input$diagnosed2, input$recovered2, input$epsilon,
                           input$lambda, input$delta, 
                           input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectvity))
         } else if (input$Infection == 'N' & input$Whenstart == 'S'){
-            get_diagnosed(input$exposed, input$infectives, 50, 
-                          50, 50, input$epsilon,
+            get_diagnosed(input$exposed2, input$infectives2, input$quarantined2, 
+                          input$diagnosed2, input$recovered2, input$epsilon,
                           input$lambda, input$delta, 
                           input$theta, input$sigma, input$gamma, input$k)
             
         } else if (input$Infection == 'Y' & input$Whenstart == 'M'){
-            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
-                          input$diagnosed, input$recovered, input$epsilon,
+            get_diagnosed(input$exposed1, input$infectives1, input$quarantined1, 
+                          input$diagnosed1, input$recovered1, input$epsilon,
                           input$lambda, input$delta, 
                           input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectvity))
         } else if (input$Infection == 'N' & input$Whenstart == 'M'){
-            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
-                          input$diagnosed, input$recovered, input$epsilon,
+            get_diagnosed(input$exposed1, input$infectives1, input$quarantined1, 
+                          input$diagnosed1, input$recovered1, input$epsilon,
                           input$lambda, input$delta, 
                           input$theta, input$sigma, input$gamma, input$k)
         } else if (input$Infection == 'Y' & input$Whenstart == 'R'){
-            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
-                          input$diagnosed, input$recovered, input$epsilon,
+            get_diagnosed(input$exposed1, input$infectives1, input$quarantined1, 
+                          input$diagnosed1, input$recovered1, input$epsilon,
                           input$lambda, input$delta, 
                           input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectvity))
         } else if (input$Infection == 'N' & input$Whenstart == 'R'){
-            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
-                          input$diagnosed, input$recovered, input$epsilon,
+            get_diagnosed(input$exposed1, input$infectives1, input$quarantined1, 
+                          input$diagnosed1, input$recovered1, input$epsilon,
                           input$lambda, input$delta, 
                           input$theta, input$sigma, input$gamma, input$k)
         }
     
     })
     
-    # Now we have the data and can 
+    
+    # Now that we have the data we can filter based on what the user wants to see 
     
     Newdf <- reactive({ ModelValues() %>% filter(people_type %in% input$lines) })
     
+    # Create an animated plot so the user can see how the disease spreads over the course 
     
-    
-    # Next create a plot of the number of people in each class over time using 
-    # an animated plot. 
     output$test_plot <- renderPlotly({
        run_animation(Newdf())
     }) 
     
+    # Create a title for the plot that shows up when the button is hit 
+    #output$title <- eventReactive(input$RunSim, {
+        #renderText({return("Table of days with the most people from each group")})
+   # })
     
-    # Data frame which shows the user when the maximum number of people
-    # in a certain group occurs
+    
+    # Create a table that tells the user about the maximum number of people in each selected 
+    # group when 
     output$df <- renderTable(
-      expr = create_table(Newdf()),
-      align = 'c',
-      width = "100%"
+        expr = create_table(Newdf()),
+        align = 'c',
+        width = "100%"
     )
     
     
