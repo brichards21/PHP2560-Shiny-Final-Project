@@ -17,12 +17,12 @@ get_diagnosed <- function(e = 477, i = 286, q = 191,
       
     }
   }
-  all_data <- as.data.frame(cbind(Time = 1:days, Exposed = e, Infectives = i, 
+  all_data <- as.data.frame(cbind(Day = 1:days, Exposed = e, Infectives = i, 
                                   Quarantined = q, Diagnosed = j, Recovered = r))
   index <- seq(1, days, 2)
   all_data <- all_data[index, ] 
   rownames(all_data) <- 1:nrow(all_data)
   all_data <- all_data %>%
-    pivot_longer(!Time, names_to = "people_type", values_to = "num_people")
+    pivot_longer(!Day, names_to = "people_type", values_to = "num_people")
   return(all_data)
 }

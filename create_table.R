@@ -8,6 +8,7 @@ create_table <- function(dataframe) {
     group_by(people_type) %>%
     arrange(desc(num_people)) %>%
     slice(1) %>%
+    select(people_type, Day, num_people) %>% 
     rename("Group" = people_type,
            "Number of People" = num_people)
   return(newdf)

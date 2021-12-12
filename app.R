@@ -220,12 +220,13 @@ server <- function(input, output){
     }) 
     
     
-    # We also want to create some reactive output that tells the user what the maximum number 
-    # day when the maximum 
-    output$df <- renderTable({
-      d <- create_table(Newdf())
-      return(d)
-    })
+    # Data frame which shows the user when the maximum number of people
+    # in a certain group occurs
+    output$df <- renderTable(
+      expr = create_table(Newdf()),
+      align = 'c',
+      width = "100%"
+    )
     
     
     
