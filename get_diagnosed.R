@@ -6,7 +6,7 @@ get_diagnosed <- function(e = 477, i = 286, q = 191,
   
   #' get_diagnosed
   
-  days <- 200
+  days <- 400
   
   
   for (t in 1:(days - 1)) {
