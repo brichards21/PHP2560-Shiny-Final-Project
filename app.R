@@ -23,6 +23,7 @@ ui <- fluidPage(
     mainPanel( 
         tabsetPanel(type = "tabs", 
                     tabPanel("What is this app doing",
+                             img(src = "SARSmodel_img", height = 250, width = 400),
                              h3("What does this app do?"),
                              p("SARS is an infectious disease that spreads 
                       via droplets spread through contact with an infected individual (Zhou et al., 2004). 
@@ -101,11 +102,11 @@ ui <- fluidPage(
                                                        ), 
                                                        # This button is the key, when the user presses this button 
                                                        # they run the simulation or are told to change their parameters
-                                                       actionButton("RunSim", "Run Simulation")))
+                                                       ))
                              )
                     ),
                     tabPanel("Results", 
-                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"))), 
+                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"), selected = "Exposed")), 
                                            mainPanel(plotOutput("test_plot")))
                     )
         )
@@ -141,20 +142,24 @@ server <- function(input, output){
     
     # Apply our simulation function based on the parameters the user inputs 
   
+    # Create a validation parameter 
+
+    
+    
     ModelValues <- reactive({
-       #funinput <- as.numeric(c(input$epsilon ,
-                                    #   input$lambda, input$delta, 
-                             #          input$theta, input$sigma, input$gamma, input$k))
-      # nonfuninput <- as.numeric(c(input$infectvity))
-        
-        if (input$Infection == 'Y' & input$Whenstart == "S") {
-            get_diagnosed(input$exposed, input$infectives, 10, 
-                          10, 10, input$epsilon,
+        validate(
+            need(sum(input$epsilon, input$lambda) <= 1, "The sum of Exposed -> Infected and Exposed -> Quarantined should be less than 1"), 
+            need(sum(input$deathrate, input$theta) <= 1, "The sum of deathrate and Infected -> Diagnosed should be less than 1"), 
+            need(sum(input$deathrate, input$theta) <= 1, "The sum of deathrate and Diagnosed -> Recovered should be less than 1")
+        )
+        if (input$Infection == 'Y' & input$Whenstart == 'S') {
+            get_diagnosed(input$exposed, input$infectives, 50, 
+                          50, 50, input$epsilon,
                           input$lambda, input$delta, 
-                          input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectives))
-        } else if (input$Infection == 'N' & input$Whenstart == "S"){
-            get_diagnosed(input$exposed, input$infectives, 10, 
-                          10, 10, input$epsilon,
+                          input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectvity))
+        } else if (input$Infection == 'N' & input$Whenstart == 'S'){
+            get_diagnosed(input$exposed, input$infectives, 50, 
+                          50, 50, input$epsilon,
                           input$lambda, input$delta, 
                           input$theta, input$sigma, input$gamma, input$k)
             
@@ -162,8 +167,18 @@ server <- function(input, output){
             get_diagnosed(input$exposed, input$infectives, input$quarantined, 
                           input$diagnosed, input$recovered, input$epsilon,
                           input$lambda, input$delta, 
-                          input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectives))
+                          input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectvity))
         } else if (input$Infection == 'N' & input$Whenstart == 'M'){
+            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
+                          input$diagnosed, input$recovered, input$epsilon,
+                          input$lambda, input$delta, 
+                          input$theta, input$sigma, input$gamma, input$k)
+        } else if (input$Infection == 'Y' & input$Whenstart == 'R'){
+            get_diagnosed(input$exposed, input$infectives, input$quarantined, 
+                          input$diagnosed, input$recovered, input$epsilon,
+                          input$lambda, input$delta, 
+                          input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectvity))
+        } else if (input$Infection == 'N' & input$Whenstart == 'R'){
             get_diagnosed(input$exposed, input$infectives, input$quarantined, 
                           input$diagnosed, input$recovered, input$epsilon,
                           input$lambda, input$delta, 
@@ -178,11 +193,13 @@ server <- function(input, output){
     
     output$test_plot <- renderPlot({
         mi <- Newdf()
+        j <- max(mi[,3])+25
     p <- ggplot(data = mi, aes(x= Time, y = num_people, color= people_type)) + 
          geom_line() +
-        scale_y_continuous(limits=c(0,6000))
+        scale_y_continuous(limits=c(0,j))
     return(p)
-    })
+    }) 
+    
    
     
     # Next create a plot of the number of people in each class over time using 
