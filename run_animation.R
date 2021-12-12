@@ -8,6 +8,15 @@ run_animation <- function(df_use) {
   
   max_data$names <- rownames(max_data)
   
+  function(dat, var) {
+    var <- lazyeval::f_eval(var, dat)
+    lvls <- plotly:::getLevels(var)
+    dats <- lapply(seq_along(lvls), function(x) {
+      cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
+    })
+    dplyr::bind_rows(dats)
+  }
+  
   
   df_use <- accumulate_by(df_use, ~ Time) 
   
