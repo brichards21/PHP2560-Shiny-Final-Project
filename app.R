@@ -334,9 +334,8 @@ server <- function(input, output){
     
     output$title <- renderText({
         Newdf()
-        return(paste0("The figure above shows the number of people in each compartment over the span of 400 days
-                      while the table below gives us the day which has the most indviduals in each respective
-                      compartment.")) })
+        return(paste0("The figure above shows the number of people in each selected group over the span of 400 days
+                      while the table below gives the day which has the most indviduals in each group.")) })
         
     
     
