@@ -4,7 +4,12 @@ run_animation <- function(df_use) {
 #'@param df_use filtered data set based on user input
 #'@return fig interactive plot
   
-  accumulate_by <- function(dat, var) {
+df_use <- df_use %>%
+# rename for improved user readability/comprehension
+  rename("Population Group" = people_type,
+         "Number of People" = num_people)  
+
+accumulate_by <- function(dat, var) {
 #' accumulate_by accumulates observations for each value of var to create the frame variable to be used by an interactive plot
 #'@param dat data frame
 #'@param var variable to accumulate by 
@@ -20,13 +25,13 @@ run_animation <- function(df_use) {
   }
   
   
-  df_use <- accumulate_by(df_use, ~ Time) # accumulate data by time to create frames for interactive plot
-  
+  df_use <- accumulate_by(df_use, ~ Day)  # accumulate data by day to create frames for interactive plot
+
   
   # form basic ggplot and separate lines by the population types (i.e. Exposed, Infectives, etc.) selected by user input
   
   p <- ggplot(df_use, aes(frame = frame)) +
-    geom_line(aes(x = Time, y = num_people, color = people_type)) +
+    geom_line(aes(x = Day, y = `Number of People`, color = `Population Group`)) +
     theme_minimal() +
     theme(legend.title = element_blank())
   
