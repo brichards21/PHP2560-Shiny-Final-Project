@@ -180,18 +180,40 @@ server <- function(input, output){
             title = "Parameters",
             
             tags$div(
-                "The boxes correspond to the number of individuals in a certain group at a certain time t",
-                tags$br(),
-                "- E(t) refers the the number of individuals in the exposed group at time t", 
-                tags$br(),
-                "- I(t) refers the the number of individuals in the infectives group at time t",
-                tags$br(),
-                "- Q(t) refers the the number of individuals in the quarantined group at time t",
-                tags$br(),
-                "- J(t) refers the the number of individuals in the diagnosed group at time t",
-                tags$br(),
-                "- R(t) refers the the number of individuals in the recovered group at time t",
-                tags$br(),
+              "The boxes correspond to the number of individuals in a certain group at a certain time t",
+              tags$br(),
+              
+              HTML("<p>- <strong>E(t)</strong> refers to the number of individuals in the exposed group at time t</p>"), 
+              HTML("<p>- <strong>I(t)</strong> refers to the number of individuals in the infectives group at time t</p>"),
+              HTML("<p>- <strong>Q(t)</strong> refers to the number of individuals in the quarantined group at time t</p>"),
+              HTML("<p>- <strong>J(t)</strong> refers to the number of individuals in the diagnosed group at time t</p>"),
+              HTML("<p>- <strong>R(t)</strong> refers to the number of individuals in the recovered group at time t</p>"),
+              tags$br(),
+              "Rate Parameters:",
+              tags$br(),
+              HTML("<p>- <strong>&beta;(t)</strong> refers to the transmission rate at time t</p>"),
+              
+              HTML("<p>- <strong>&delta;</strong> refers to the rate of infected and diagnosed individuals dying</p>"),
+              
+              HTML("<p>- <strong>&epsilon;</strong> refers to the rate of exposed individuals moving into the infectives group</p>"),
+              
+              HTML("<p>- <strong>&lambda;</strong> refers to the rate of exposed individuals moving into the quarantined group</p>"),
+              
+              HTML("<p>- <strong>&sigma;</strong> refers to the rate of quarantined individuals moving into the diagnosed group</p>"),
+              
+              HTML("<p>- <strong>&theta;</strong> refers to the rate of infected individuals moving into the diagnosed group</p>"),
+              
+              HTML("<p>- <strong>&gamma;</strong> refers to the rate of diagnosed individuals moving into the recovered group</p>"),
+              
+              HTML("<p>- <strong>k</strong> refers to the infectivity fraction for the exposed individuals compared to individuals in the infectives group</p>"),
+              
+              tags$br(),
+              "All parameters are positive and the following inequalities hold:",
+              tags$br(),
+              HTML("<p>- 0 < &epsilon; + &lambda; < 1</p>"),
+              HTML("<p>- 0 < &delta; + &theta; < 1</p>"),
+              HTML("<p>- 0 < &sigma; < 1</p>"),
+              HTML("<p>- 0 < &delta; + &gamma; < 1</p>")
             )
         ))
     })
