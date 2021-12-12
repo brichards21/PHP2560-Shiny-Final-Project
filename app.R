@@ -83,7 +83,7 @@ ui <- fluidPage(
                              ),
                              # We have escaped the conditional panels, but fear they return again 
                              mainPanel(fluidRow(column(width=6, offset = 0,
-                                                       sliderInput("deathrate", "death rate" , 0, 1, (15/100)*(1/21)), 
+                                                       sliderInput("delta", "death rate" , 0, 1, (15/100)*(1/21)), 
                                                        sliderInput("epsilon", "Exposed -> Infective" , 0, 1, (1/3)*(2/5)),
                                                        sliderInput("lambda", "Exposed -> Quarentined" , 0, 1, (1/3)*(3/5)),
                                                        sliderInput("sigma", "Quarenrined -> Diagnosed" , 0, 1, 1/3),
@@ -93,7 +93,7 @@ ui <- fluidPage(
                                                 column(width = 4, offset = 2, 
                                                        p("This model assuumes that infectivity is a function of time, our model assumes 
                                                          the function, but a user may want to change the infectivity rate."), 
-                                                       checkboxGroupInput("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y", No = "N")),
+                                                       radioButtons("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y", No = "N")),
                                                        # If the user wants to chose an infectivity rate to a constant we let them
                                                        conditionalPanel(
                                                            condition = "input.Infection == 'Y'", 
@@ -105,7 +105,7 @@ ui <- fluidPage(
                              )
                     ),
                     tabPanel("Results", 
-                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infective", "Quarantined", "Diagnosed", "Recovered"))), 
+                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"))), 
                                            mainPanel(plotOutput("test_plot")))
                     )
         )
@@ -122,7 +122,7 @@ server <- function(input, output){
     # panel 
     observeEvent(req(input$Whenstart == "R"), {
         intial <- checkcondition(runif(1), runif(1), runif(1), runif(1), runif(1))
-        updateSliderInput(inputId = "deathrate", value = intial$deathrate)
+        updateSliderInput(inputId = "delta", value = intial$delta)
         updateSliderInput(inputId = "epsilon", value = intial$epsilon)
         updateSliderInput(inputId = "lambda", value = intial$lambda)
         updateSliderInput(inputId = "sigma", value = runif(1))
@@ -130,7 +130,7 @@ server <- function(input, output){
         updateSliderInput(inputId = "gamma", value = intial$gamma)
     })
     observeEvent(req(input$Whenstart != "R"), {
-        updateSliderInput(inputId = "deathrate", value = (15/100)*(1/21))
+        updateSliderInput(inputId = "delta", value = (15/100)*(1/21))
         updateSliderInput(inputId = "epsilon", value = (1/3)*(2/5))
         updateSliderInput(inputId = "lambda", value = (1/3)*(3/5))
         updateSliderInput(inputId = "sigma", value = 1/3)
@@ -140,42 +140,49 @@ server <- function(input, output){
     
     
     # Apply our simulation function based on the parameters the user inputs 
-    
+  
     ModelValues <- reactive({
-        funinput <- as.numeric(c(input$epsilon ,
-                                 input$lambda, input$delta, 
-                                 input$theta, input$sigma, input$gamma, input$k))
-        nonfuninput <- as.numeric(c(input$epsilon ,
-                                    input$lambda, input$delta, 
-                                    input$theta, input$sigma, input$gamma, input$k, input$infectivity))
+       #funinput <- as.numeric(c(input$epsilon ,
+                                    #   input$lambda, input$delta, 
+                             #          input$theta, input$sigma, input$gamma, input$k))
+      # nonfuninput <- as.numeric(c(input$infectvity))
+        
         if (input$Infection == 'Y' & input$Whenstart == "S") {
-            get_diagnosed(input$exposed, input$infectives, 1, 
-                          1, 1, nonfuninput[1] ,
-                          nonfuninput[2], nonfuninput[3], 
-                          nonfuninput[4], nonfuninput[5], nonfuninput[6], nonfuninput[7], nonfuninput[8])
+            get_diagnosed(input$exposed, input$infectives, 10, 
+                          10, 10, input$epsilon,
+                          input$lambda, input$delta, 
+                          input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectives))
         } else if (input$Infection == 'N' & input$Whenstart == "S"){
-            get_diagnosed(input$exposed, input$infectives, 1, 
-                          1, 1, funinput[1] ,
-                          funinput[2], funinput[3], 
-                          funinput[4], funinput[5], funinput[6], funinput[7])
+            get_diagnosed(input$exposed, input$infectives, 10, 
+                          10, 10, input$epsilon,
+                          input$lambda, input$delta, 
+                          input$theta, input$sigma, input$gamma, input$k)
             
-        } else if (input$Infection == 'Y' & (input$Whenstart == 'M' | input$Whenstart == 'R')){
+        } else if (input$Infection == 'Y' & input$Whenstart == 'M'){
             get_diagnosed(input$exposed, input$infectives, input$quarantined, 
-                          input$diagnosed, input$recovered, nonfuninput[1] ,
-                          nonfuninput[2], nonfuninput[3], 
-                          nonfuninput[4], nonfuninput[5], nonfuninput[6], nonfuninput[7], nonfuninput[8])
-        } else if (input$Infection == 'N' & (input$Whenstart == 'M' | input$Whenstart == 'R')){
+                          input$diagnosed, input$recovered, input$epsilon,
+                          input$lambda, input$delta, 
+                          input$theta, input$sigma, input$gamma, input$k, as.numeric(input$infectives))
+        } else if (input$Infection == 'N' & input$Whenstart == 'M'){
             get_diagnosed(input$exposed, input$infectives, input$quarantined, 
-                          input$diagnosed, input$recovered, nonfuninput[1] ,
-                          nonfuninput[2], nonfuninput[3], 
-                          nonfuninput[4], nonfuninput[5], nonfuninput[6], nonfuninput[7], nonfuninput[8])
+                          input$diagnosed, input$recovered, input$epsilon,
+                          input$lambda, input$delta, 
+                          input$theta, input$sigma, input$gamma, input$k)
         }
     
     })
     
     # Now we have the data and can 
     
-    ModelValues <- ModelValues %>% filter(people_type %in% input$lines)
+    Newdf <- reactive({ ModelValues() %>% filter(people_type %in% input$lines) })
+    
+    output$test_plot <- renderPlot({
+        mi <- Newdf()
+    p <- ggplot(data = mi, aes(x= Time, y = num_people, color= people_type)) + 
+         geom_line() +
+        scale_y_continuous(limits=c(0,6000))
+    return(p)
+    })
    
     
     # Next create a plot of the number of people in each class over time using 
