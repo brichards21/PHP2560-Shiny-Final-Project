@@ -19,7 +19,7 @@ ui <- fluidPage(
     # The first is a tab that explains the model we are implementing and how we implement it in our model
     # The second tab gives the user an overview of the model they are implementing 
     # The third tab allows the user to set their parameters 
-    # The third gives them the output of a plot, table of max values they selected and text that explains
+    # The fourth tab gives them the output of a plot, table of max values they selected and text that explains
     
     # Application title
     titlePanel("The Spread of Infectious Disease"),
@@ -35,14 +35,14 @@ ui <- fluidPage(
                                 via droplets spread through contact with an infected individual (Zhou et al., 2004). 
                                 This disease was identified in the early 2000s and due to its high infectivity was able 
                                 to spread quickly and internationally (Zhou et al., 2004). Through drastic public health 
-                                measures the spread of the disease was controlled, but peaked mathematical modler's 
-                                interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading 
+                                measures the spread of the disease was controlled, but peaked mathematical modlers' 
+                                interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading, 
                                 the authors created a mathematical model that allows for them to predict the number of 
                                 indviduals that contracted SARS over a given amount of days (Zhou et al., 2004). 
                                 In their model they have a multitude of parameters that they estimate based on their 
-                                given data, to predict the number of indviduals diagnosed with SARS on a given day based 
-                                on the starting valuesand parameter values (Zhou et al., 2004). After seeing how accurate
-                                this model is we believe it could be beneficial 
+                                given data in order to predict the number of indviduals diagnosed with SARS on a given day based 
+                                on the starting values and parameter values (Zhou et al., 2004). After seeing how accurate
+                                this model is, we believe it could be beneficial 
                                 for other similar infectious diseases. Thus we have created this app which allows for 
                                 public health officials to input parameters that were estimated based on their own data 
                                 to predict the number of diagnosed, exposed, infected, quarantined, and recovered 
@@ -50,27 +50,27 @@ ui <- fluidPage(
                                "),
                              h3("How we implement this model"),
                              p("In order to create an app with the greatest utility possible, we 
-                               wanted the user to be able to be able to start at the onset of an epidemic, 
-                               the middle of one or if the user is unsure of the parameters they start in the middle 
-                               with ranomly generated parameters. The number of people in each of the model
-                               comparatments when starting in the middle or random is the same as given in the paper (Zhou et al., 2004).
-                               We make an assumption that when the pandemic is starting that there will be 50 indviduals in the 
-                               quarantine, diagnosed and recovered compartments, but allow the user to change this value, which we cap at 100."),
+                               wanted the user to be able to start at the onset of an epidemic, 
+                               the middle of one, or if the user is unsure of the parameters they can start in the middle 
+                               with ranomly generated parameters. The numbers of people in each of the model's
+                               population groups when starting in the middle or randomizing are the same as given in the paper (Zhou et al., 2004).
+                               We make an assumption that when the pandemic is starting there will be 50 indviduals in the 
+                               quarantine, diagnosed and recovered groups, but allow the user to change this value, which we cap at 100."),
                              h3("User Guide"),
-                             p("First things first, this model is complicated, with a lot of parameters, so to get a better picture 
-                               of how this works please click on the Visual Representation tab, which allows for 
+                             p("First things first, this model is complicated with a lot of parameters, so to get a better picture 
+                               of how this works, please click on the Visual Representation tab which allows for 
                                you to see the model drawn out from the Zhou et al., paper with a button that tells you about the
                                parameters (2004). After you have a good understanding of the model and what we refer to as these 
-                               parameters please go to the parameters tab and select when you want to begin your simulation, start, middle, or 
-                               a simulation with random parameters. Adjust the inputs in the parramters tab to fit your data or, if you want you
-                               want to simulate using the parameters Zhou. et al, estimated  leave them as the defaults (2004). Once 
-                               you're all set please hit the run simulation button, and go to the results tab this will 
+                               parameters, please go to the parameters tab and select when you want to begin your simulation: start, middle, or 
+                               a simulation with random parameters. Adjust the inputs in the paramters tab to fit your data or, if you want
+                               to simulate using the parameters Zhou. et al estimated, leave them as the defaults (2004). Once 
+                               you're all set, please hit the run simulation button and go to the results tab. This will 
                                display an animated plot and table that contains the day with the most indviduals
-                               for the compartments you want to explore. If you want to see multiple lines at one time it is 
-                               best to check all lines at once, if you check a new compartment while the 
-                               simiulation is running it will reload the graph in the middle 
-                               of the animation. If you want to update this simulation then 
-                               return to the parameters tab and adjust and once you're ready hit the run simulation 
+                               for the population groups you want to explore. If you want to see multiple lines at one time, it is 
+                               best to check all lines at once. If you check a new compartment while the 
+                               simiulation is running, it will reload the graph in the middle 
+                               of the animation. If you want to update this simulation, then 
+                               return to the parameters tab, adjust, and once you're ready, hit the run simulation 
                                button and you will get new results."), 
                              p("Citation"),
                              p("Zhou, Y., Ma, Z., &amp; Brauer, F. (2004). 
@@ -79,7 +79,7 @@ ui <- fluidPage(
                              p("This app was created by Breanna Richards, Nancy Liu and Tim Hedspeth for PHP 2560")
                     ), 
                     
-                    # This next tab gives the visualization of the model and explanation of the paramters 
+                    # This next tab gives the visualization of the model and explanation of the parameters 
                     tabPanel("Visual Representation",
                              h3("What does this model look like"), 
                              img(src = "SARSmodel_img.png", height = 350, width = 787),
@@ -93,8 +93,8 @@ ui <- fluidPage(
                              selectInput("Whenstart", "When do you want to start", c(Start = "S", Middle = "M", Random ="R")), 
                              
                              # We want a user to get different input options based on when they are starting
-                             # We use a conditional panel to check when the user wants to start and change the 
-                             # compartment values based on this 
+                             # We use a conditional panel to check when the user wants to start, and change the 
+                             # population values based on this 
                              conditionalPanel(
                                  condition = "input.Whenstart == 'M'||input.Whenstart == 'R'", 
                                  sidebarPanel(numericInput("exposed1", "Number of Individuals Exposed to COVID",
@@ -134,8 +134,8 @@ ui <- fluidPage(
                                                            "Number of Individuals Recovered from COVID",
                                                            50, min = 0, max = 100), 
                                               p("We assume that 50 people are in these categories at the start, 
-                                                but you may update them, since this is the start we limit to
-                                                100 in these categories"))
+                                                but you may update them. Since this is the start, we limit to up
+                                                to 100 in these categories"))
                                  
                              ),
                              
@@ -152,23 +152,23 @@ ui <- fluidPage(
                                                        p("This model assumes that infectivity is a function of time,
                                                          but you can make it constant if you would like."), 
                                                        radioButtons("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y", No = "N"), selected = "N"),
-                                                       # If the user wants to change the infectivity rate to a constant we let them, but default to 
+                                                       # If the user wants to change the infectivity rate to a constant, we let them, but default to 
                                                        # using the function given by Zhou et al 
                                                        conditionalPanel(
                                                            condition = "input.Infection == 'Y'", 
                                                            sliderInput("infectvity", "Infectivity Rate" , 0, 1, .5)
                                                        ), 
-                                                       # This button is the key, when the user presses this button 
+                                                       # This button is the key. When the user presses this button, 
                                                        # they run the simulation or are told to change their parameters if they 
-                                                       # dont work for the model
+                                                       # don't work for the model
                                                        p("Are you ready?"),
                                                        actionButton("RunSim", "Run Simulation")), 
                              ))
                     ),
                     
-                    # This panel will display the results in an animated plot and will give a table of the max values 
+                    # This panel will display the results in an interactive plot and will give a table of the max values 
                     tabPanel("Results", 
-                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What compartments do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"), selected = "Exposed")), 
+                             sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What population subgroups do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"), selected = "Exposed")), 
                                            mainPanel(tags$br(),
                                                      p("Please note that the graph may take a minute to load, reset and add a new compartment to the plot"),
                                                      plotlyOutput("plot"), 
@@ -235,11 +235,11 @@ server <- function(input, output){
     
     
     # The first thing we need to do is have our randomness come into play on our conditional
-    # panel, the model assumes that some parameters cant have a sum greater than 1  so we created 
+    # panel, the model assumes that some parameters cant have a sum greater than 1 so we created 
     # a function to validate this for our random values 
     observeEvent(req(input$Whenstart == "R"), {
         
-        # check the conditions using our function to make sure the random values are valid for the mode 
+        # check the conditions using our function to make sure the random values are valid for the model 
         intial <- checkcondition(runif(1), runif(1), runif(1), runif(1), runif(1))
         updateSliderInput(inputId = "delta", value = intial$deathrate)
         updateSliderInput(inputId = "epsilon", value = intial$epsilon)
@@ -266,7 +266,7 @@ server <- function(input, output){
     
     ModelValues <- eventReactive(input$RunSim, {
         
-        # First validate that the model assumptions in terms of addition of two parmaters are met 
+        # First validate that the model assumptions in terms of the  addition of two parameters are met 
         
         validate(
             need(sum(input$epsilon, input$lambda) <= 1, "The sum of Exposed -> Infected and Exposed -> Quarantined should be less than 1"), 
@@ -276,8 +276,8 @@ server <- function(input, output){
         
         # We now check to see what time and infection rate the users have 
         # This allows us to run our model for the parameters set, 
-        # we must check when they're starting and what they're doing with regard to the infectvitivty rate 
-        # Each calls the function we wrote for the Zhou et al model
+        # we must check when they're starting and what they're doing with regard to the infectivity rate 
+        # Each calls the function we wrote for the Zhou et al. model
         
         if (input$Infection == 'Y' & input$Whenstart == 'S') {
             get_diagnosed(input$exposed2, input$infectives2, input$quarantined2, 
@@ -320,11 +320,12 @@ server <- function(input, output){
     
     
     # The step above returns us a data frame with all the information we get from the model
-    # Since the user can pick what compartments they want to see we create a data frame with just this info
+    # Since the user can pick what population subgroups they want to see,
+    # we create a data frame with just this info
     
     Newdf <- reactive({ ModelValues() %>% filter(people_type %in% input$lines) })
     
-    # Once we have the data we now create our animated plot of the data  
+    # Once we have the data we now create our interactive plot of the data  
     
     output$plot <- renderPlotly({
         run_animation(Newdf())
