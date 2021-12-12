@@ -7,23 +7,26 @@ library(docstring)
 get_diagnosed <- function(e = 477, i = 286, q = 191, 
                           j = 848, r = 1213, epsilon = (1/3)*(2/5),
                           lambda = (1/3)*(3/5), delta = (15/100)*(1/21), 
-                          theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, b = (31 + t)/(22 + 5*t)) {
+                          theta = 1/3, sigma = 1/3, gamma = 1/21, k = 0.1, 
+                          b = (31 + t)/(22 + 5*t)) {
   
-  #' get_diagnosed generates epidemic data with exposed, infected, quarantined, diagnosed, and recovered individuals for 400 days
+  #' get_diagnosed generates epidemic data with exposed, infected, quarantined, 
+  #' diagnosed, and recovered individuals for 400 days
+  #' 
   #'@param e initial number of exposed
   #'@param i initial number of infectives
-  #'@param q inital number of quarantined
+  #'@param q initial number of quarantined
   #'@param j initial number of diagnosed
   #'@param r initial number of recovered
-  #'@param epsilon rate of exposed people moving into infective class
-  #'@param lambda rate of exposed people moving into quarantined class
-  #'@param delta rate of infected and diagnosed people dying
-  #'@param theta rate of infectives moving into diagnosed class
-  #'@param sigma rate of quarantined people moving into diagnosed class
-  #'@param gamma rate of diagnosed moving into recovered class
-  #'@param k infectivity fraction for the exposed individuals compared with individuals in the infective class
+  #'@param epsilon rate of exposed individuals moving into the infectives group
+  #'@param lambda rate of exposed individuals moving into the quarantined group
+  #'@param delta rate of infected and diagnosed individuals dying
+  #'@param theta rate of infected individuals moving into the diagnosed group
+  #'@param sigma rate of quarantined individuals moving into the diagnosed group
+  #'@param gamma rate of diagnosed individuals moving into recovered group
+  #'@param k infectivity fraction for the exposed individuals compared with individuals in the infectives group
   #'@param b transmission rate
-  #'@return all_data data frame containing number of individuals in each population class
+  #'@return all_data data frame containing the number of individuals in each population group at each day
   
   
   days <- 400 # collect data for 400 days
@@ -68,7 +71,7 @@ get_diagnosed <- function(e = 477, i = 286, q = 191,
 
 
 
-# This next function runs takes in the data generated from our model and creates an interactive plot for them over time 
+# This next function takes in the data generated from our model and creates an interactive plot for them over time 
 
 run_animation <- function(df_use) {
   
@@ -82,7 +85,8 @@ run_animation <- function(df_use) {
            "Number of People" = num_people)  
   
   accumulate_by <- function(dat, var) {
-    #' accumulate_by accumulates observations for each value of var to create the frame variable to be used by an interactive plot
+    #' accumulate_by accumulates observations for each value of var to create the 'frame' variable to be used by an interactive plot
+    #' 
     #'@param dat data frame
     #'@param var variable to accumulate by 
     #'@return accumulated data with frame variable
@@ -165,7 +169,7 @@ create_table <- function(dataframe) {
 
 
 # Our last function checks the parameter conditions of our model to ensure it is valid for the model 
-# If a user changes these conditions manually we validate in shiny that they fit 
+# If a user changes these conditions manually, we validate in shiny that they fit 
 
 checkcondition <- function(deathrate, epsilon, lambda, theta, gamma){
   #' This function was created to check the parameters of the model that we are applying 
