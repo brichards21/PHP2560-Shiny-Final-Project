@@ -130,14 +130,14 @@ ui <- fluidPage(
                              
                              # The parameters can be changed for any of the start times and once this 
                               mainPanel(fluidRow(column(width=5, offset = 0,
-                                                       sliderInput("delta", "death rate" , 0, 1, (15/100)*(1/21)), 
-                                                       sliderInput("epsilon", "Exposed -> Infective" , 0, 1, (1/3)*(2/5)),
-                                                       sliderInput("lambda", "Exposed -> Quarantined" , 0, 1, (1/3)*(3/5)),
-                                                       sliderInput("sigma", "Quarantined -> Diagnosed" , 0, 1, 1/3),
-                                                       sliderInput("theta", "Infected -> Diagnosed" , 0, 1, 1/3)), 
+                                                       sliderInput("delta", HTML("<p>Death Rate (&delta;)</p>") , 0, 1, (15/100)*(1/21)), 
+                                                       sliderInput("epsilon", HTML("<p>Exposed -> Infective (&epsilon;)</p>") , 0, 1, (1/3)*(2/5)),
+                                                       sliderInput("lambda", HTML("<p>Exposed -> Quarantined (&lambda;)</p>") , 0, 1, (1/3)*(3/5)),
+                                                       sliderInput("sigma", HTML("<p>Quarantined -> Diagnosed (&sigma;)</p>") , 0, 1, 1/3),
+                                                       sliderInput("theta", HTML("<p>Infected -> Diagnosed (&theta;)</p>") , 0, 1, 1/3)), 
                                                 column(width = 5, offset = 2,
-                                                       sliderInput("gamma", "Diagnosed -> Recovered" , 0, 1, 1/21), 
-                                                       sliderInput("k", "k", 0, 1, .1),
+                                                       sliderInput("gamma", HTML("<p>Diagnosed -> Recovered (&gamma;)</p>") , 0, 1, 1/21), 
+                                                       sliderInput("k", "Infectivity Fraction (k)", 0, 1, .1),
                                                        p("This model assumes that infectivity is a function of time, our model assumes 
                                                          the function, but you can make it constant if you would like."), 
                                                        radioButtons("Infection", "Would you like to change infectivity rate to a constant?", c(Yes = "Y", No = "N"), selected = "N"),
