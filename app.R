@@ -9,9 +9,8 @@
 
 library(shiny)
 library(plotly)
-#source("simulation_updated.R")
 
-#source("ourfunctions.R")
+source("ourfunctions.R")
 
 
 ui <- fluidPage(
@@ -21,18 +20,18 @@ ui <- fluidPage(
     # The third gives them the output of a plot, table of max values they selected and text that explains
     
     # Application title
-    titlePanel("The spread of infectious disease"),
+    titlePanel("The Spread of Infectious Disease"),
     
     mainPanel( 
         # Tab to explain the simulation 
         tabsetPanel(type = "tabs", 
-                    tabPanel("What is this app doing",
+                    tabPanel("Purpose",
                              h3("What does this app do?"),
                              p("SARS is an infectious disease that spreads 
                                 via droplets spread through contact with an infected individual (Zhou et al., 2004). 
                                 This disease was identified in the early 2000s and due to its high infectivity was able 
                                 to spread quickly and internationally (Zhou et al., 2004). Through drastic public health 
-                                measures the spread of the disease was controled, but peaked mathematical modler's 
+                                measures the spread of the disease was controlled, but peaked mathematical modler's 
                                 interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading 
                                 the authors created a mathematical model that allows for them to predict the number of 
                                 indviduals that contracted SARS over a given amount of days (Zhou et al., 2004). 
@@ -74,12 +73,12 @@ ui <- fluidPage(
                      Mathematical and Computer Modelling, 40(13), 1491–1506. https://doi.org/10.1016/j.mcm.2005.01.007 "),
                              p("This app was created by Breanna Richards, Nancy Liu and Tim Hedspeth for PHP 2560")
                            ), 
-                    tabPanel("Visual Respresntation",
+                    tabPanel("Visual Representation",
                              h3("What does this model look like"), 
-                             img(src = "SARSmodel_img.png", height = 250, width = 400),
+                             img(src = "SARSmodel_img.png", height = 350, width = 787),
                              actionButton("explanation", "What does this mean?")
                              ), 
-                    tabPanel("Set your parameters", 
+                    tabPanel("Set Your Parameters", 
                              selectInput("Whenstart", "When do you want to start", c(Start = "S", Middle = "M", Random ="R")), 
                              
                              # We want a user to get different input options based on when they are starting
@@ -133,8 +132,8 @@ ui <- fluidPage(
                               mainPanel(fluidRow(column(width=5, offset = 0,
                                                        sliderInput("delta", "death rate" , 0, 1, (15/100)*(1/21)), 
                                                        sliderInput("epsilon", "Exposed -> Infective" , 0, 1, (1/3)*(2/5)),
-                                                       sliderInput("lambda", "Exposed -> Quarentined" , 0, 1, (1/3)*(3/5)),
-                                                       sliderInput("sigma", "Quarenrined -> Diagnosed" , 0, 1, 1/3),
+                                                       sliderInput("lambda", "Exposed -> Quarantined" , 0, 1, (1/3)*(3/5)),
+                                                       sliderInput("sigma", "Quarantined -> Diagnosed" , 0, 1, 1/3),
                                                        sliderInput("theta", "Infected -> Diagnosed" , 0, 1, 1/3)), 
                                                 column(width = 5, offset = 2,
                                                        sliderInput("gamma", "Diagnosed -> Recovered" , 0, 1, 1/21), 
@@ -150,7 +149,7 @@ ui <- fluidPage(
                                                        ), 
                                                        # This button is the key, when the user presses this button 
                                                        # they run the simulation or are told to change their parameters
-                                                       p("When you're set with your parmaters hit the button below and go to results"),
+                                                       p("When you're set with your parameters hit the button below and go to results!"),
                                                        actionButton("RunSim", "Run Simulation")), 
                                                       ))
                     ),
@@ -158,8 +157,9 @@ ui <- fluidPage(
                     # This panel will display the results in an animated plot and will give a table 
                     tabPanel("Results", 
                              sidebarLayout(sidebarPanel(checkboxGroupInput("lines", "What do you want to see on the plot?", c("Exposed", "Infectives", "Quarantined", "Diagnosed", "Recovered"), selected = "Exposed")), 
-                                           mainPanel(p("Plese note that the graph may take a minute to load and reset"),
-                                                     plotlyOutput("test_plot"), 
+                                           mainPanel(tags$br(),
+                                             p("Please note that the graph may take a minute to load and reset"),
+                                                     plotlyOutput("plot"), 
                                                      #textOutput("title"), 
                                                      tableOutput("df")))
                     )
@@ -180,9 +180,17 @@ server <- function(input, output){
             title = "Parameters",
             
             tags$div(
-                "- bullet 1", 
+                "The boxes correspond to the number of individuals in a certain group at a certain time t",
                 tags$br(),
-                "- bullet 2",
+                "- E(t) refers the the number of individuals in the exposed group at time t", 
+                tags$br(),
+                "- I(t) refers the the number of individuals in the infectives group at time t",
+                tags$br(),
+                "- Q(t) refers the the number of individuals in the quarantined group at time t",
+                tags$br(),
+                "- J(t) refers the the number of individuals in the diagnosed group at time t",
+                tags$br(),
+                "- R(t) refers the the number of individuals in the recovered group at time t",
                 tags$br(),
             )
         ))
@@ -270,7 +278,7 @@ server <- function(input, output){
     
     # Create an animated plot so the user can see how the disease spreads over the course 
     
-    output$test_plot <- renderPlotly({
+    output$plot <- renderPlotly({
        run_animation(Newdf())
     }) 
     
@@ -281,15 +289,12 @@ server <- function(input, output){
     
     
     # Create a table that tells the user about the maximum number of people in each selected 
-    # group when 
+    # group at a certain time
     output$df <- renderTable(
         expr = create_table(Newdf()),
         align = 'c',
         width = "100%"
     )
-    
-    
-    
 }
 
 # Run the application 
