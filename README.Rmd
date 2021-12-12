@@ -1,12 +1,12 @@
 ---
 title: "README"
 author: "Breanna Richards, Tim Hedspeth, Nancy Liu"
-date: "12/3/2021"
+date: "12/15/2021"
 output: pdf_document
 ---
 
 # PHP2560-Shiny-Final-Project
-Working on the final project for PHP2560
+
 SARS is an infectious disease that spreads via droplets spread through contact with an infected individual (Zhou et al., 2004). This disease was identified in the early 2000s and due to its high infectivity was able to spread quickly and internationally (Zhou et al., 2004). Through drastic public health measures the spread of the disease was controlled, but peaked mathematical modler's interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading the authors created a mathematical model that allows for them to predict the number of individuals that contracted SARS over a given amount of days (Zhou et al., 2004). In their model they have a multitude of parameters that they estimate based on their given data, to predict the number of individuals diagnosed with SARS on a given day based on the starting values and parameter values (Zhou et al., 2004). The authors utilize their own data to estimate the model parameters, but we find that this model could be beneficial for other similar infectious diseases. Thus we have created this app which allows for public health officials to input parameters that were estimated based on their own data to predict the number of sick, exposed or infected individuals after $t$ days. 
 
 ## App Set up
@@ -21,15 +21,22 @@ We have three tabs in our app: the first tab is a home page that explains what t
     
     The third column allows the user to choose whether they would like the infectivity rate to be a constant. The default selection is "Yes", which includes a slider for the infectivity fraction, $k$. If the user selects "No", the slider disappears and assumes the infectivity fraction follows the formula $\beta(t) = (kE + I)$ (Zhou et al., 2004).
 
-3. Results: This will render an animated plot based on the inputs that the user selects on the parameters tab. The default plot will give a curve of the number of exposed individuals per day over the number of days. We have included a checkbox input on the left to allow the user to display the different curves for the other classes (infected, quarantined, diagnosed and recovered) based on their research needs.
+3. Results: This will render an animated plot based on the inputs that the user selects on the parameters tab. The default plot will give a curve of the number of exposed individuals per day over the number of days. We have included a check box input on the left to allow the user to display the different curves for the other classes (infected, quarantined, diagnosed and recovered) based on their research needs.
 
     A table will render and show the user the day for which the maximum number of people in the check boxed groups occurs. The groups which are displayed correspond to what the user checks in the input.
 
 
 ## Functions
 
-`get_diagnosed()`
+- `get_diagnosed(e, i, q, j, r, epsilon, lambda, delta, theta, sigma, gamma, k, b):` takes in numeric parameters based the number of people in the five different groups and the rate at which patients flow from one group to another. This function returns a data frame of the number of patients in each group for each for each passing day between 1 and 400 using the equations given by Zhou et al., 2004.
 
+- `run_animation(dataframe):` takes in a data frame filtered based on the population and returns an interactive plot of days against number of patients by group.
 
-Citation 
+- `accumulate_by(data, variable):` takes in a data parameter and variable parameter to accumulate by. The function returns accumulated data with an additional frame variable.
+
+- `checkcondition(deathrate, epsilon, lambda, theta, gamma):` takes in numeric variables based on the rate parameters. If the parameters are not within acceptable rate parameters, we will regenerate new parameter values from a uniform distribution. The function returns numeric parameters that fit the model.
+
+- `create_table(dataframe):` takes in a data frame parameter and returns a data frame which displays the day where we observed the highest membership for each group.
+
+## Citation 
 Zhou, Y., Ma, Z., & Brauer, F. (2004). A discrete epidemic model for SARS transmission and control in China. Mathematical and Computer Modelling, 40(13), 1491–         1506. https://doi.org/10.1016/j.mcm.2005.01.007
