@@ -1,3 +1,5 @@
+library(docstring)
+
 
 # This first function runs our simulation, the initial values are set to be 
 # what is given in the model in the paper 
@@ -63,7 +65,11 @@ get_diagnosed <- function(e = 477, i = 286, q = 191,
   
 }
 
-# This next function runs the animation that the user sees and can interact with 
+
+
+
+# This next function runs takes in the data generated from our model and creates an interactive plot for them over time 
+
 run_animation <- function(df_use) {
   
   #' run_animation displays an interactive plot 
@@ -134,6 +140,9 @@ run_animation <- function(df_use) {
 }
 
 
+
+
+
 # This function helps us create a data frame of the max number of people in each group selected 
 
 create_table <- function(dataframe) {
@@ -142,6 +151,8 @@ create_table <- function(dataframe) {
   #' 
   #' @param dataframe, the data frame consisting of number of people, group, and time
   #' @return data frame with the maximum number of people and time for a specific group   
+  
+  
   newdf <- dataframe %>%
     group_by(people_type) %>%
     arrange(desc(num_people)) %>%
@@ -149,20 +160,25 @@ create_table <- function(dataframe) {
     rename("Group" = people_type,
            "Number of People" = num_people)
   return(newdf)
+  
 }
+
 
 # Our last function checks the parameter conditions of our model to ensure it is valid for the model 
 # If a user changes these conditions manually we validate in shiny that they fit 
 
 checkcondition <- function(deathrate, epsilon, lambda, theta, gamma){
   #' This function was created to check the parameters of the model that we are applying 
-  #' We apply this for our randomly generated data in our function 
+  #' We apply this for our randomly generated data in our function so they always work 
   #' 
-  #' @param deathrate, the rate of death set in the model 
-  #' @param epsilon, the epsilong
-  #' @return the parraaters that fit the model 
+  #' @param deathrate, a randomly generated Death Rate, delta for the model
+  #' @param epsilon, a randomly generated epsilon value for the model
+  #' @param lambda, a randomly generated lambda value for the model 
+  #' @param theta, a randomly generated theta value for the model
+  #' @param gamma, a randomly generated gamma for the model 
+  #' @return the parameters that fit the model conditions 
   
-  while(sum( epsilon, lambda) > 1){
+  while(sum(epsilon, lambda) > 1){
     epsilon <- runif(1)
     lambda <- runif(1)
   } 
@@ -171,6 +187,7 @@ checkcondition <- function(deathrate, epsilon, lambda, theta, gamma){
     theta <- runif(1)
     gamma <- runif(1)
   } 
-  j <- data.frame(deathrate, epsilon, lambda, theta, gamma )
-  return(j)
+  dfparams <- data.frame(deathrate, epsilon, lambda, theta, gamma )
+  return(dfparams)
+  
 }
