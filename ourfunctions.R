@@ -82,7 +82,8 @@ run_animation <- function(df_use) {
   df_use <- df_use %>%
     # rename for improved user readability/comprehension
     rename("Population Group" = people_type,
-           "Number of People" = num_people)  
+           "Number of People" = num_people)  %>% 
+    filter(Day %% 5 == 0 | Day == 1)
   
   accumulate_by <- function(dat, var) {
     #' accumulate_by accumulates observations for each value of var to create the 'frame' variable to be used by an interactive plot

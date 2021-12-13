@@ -35,18 +35,18 @@ ui <- fluidPage(
                                 via droplets spread through contact with an infected individual (Zhou et al., 2004). 
                                 This disease was identified in the early 2000s and due to its high infectivity was able 
                                 to spread quickly and internationally (Zhou et al., 2004). Through drastic public health 
-                                measures the spread of the disease was controlled, but peaked mathematical modlers' 
+                                measures the spread of the disease was controlled, but peaked mathematical modelers' 
                                 interest (Zhou et al., 2004). In order to have an idea of how this disease was spreading, 
                                 the authors created a mathematical model that allows for them to predict the number of 
-                                indviduals that contracted SARS over a given amount of days (Zhou et al., 2004). 
+                                individuals that contracted SARS over a given amount of days (Zhou et al., 2004). 
                                 In their model they have a multitude of parameters that they estimate based on their 
-                                given data in order to predict the number of indviduals diagnosed with SARS on a given day based 
+                                given data in order to predict the number of individuals diagnosed with SARS on a given day based 
                                 on the starting values and parameter values (Zhou et al., 2004). After seeing how accurate
                                 this model is, we believe it could be beneficial 
                                 for other similar infectious diseases. Thus we have created this app which allows for 
                                 public health officials to input parameters that were estimated based on their own data 
                                 to predict the number of diagnosed, exposed, infected, quarantined, and recovered 
-                                indviduals after t days. 
+                                individuals after t days. 
                                "),
                              h3("How we implement this model"),
                              p("In order to create an app with the greatest utility possible, we 
@@ -54,7 +54,7 @@ ui <- fluidPage(
                                the middle of one, or if the user is unsure of the parameters they can start in the middle 
                                with ranomly generated parameters. The numbers of people in each of the model's
                                population groups when starting in the middle or randomizing are the same as given in the paper (Zhou et al., 2004).
-                               We make an assumption that when the pandemic is starting there will be 50 indviduals in the 
+                               We make an assumption that when the pandemic is starting there will be 50 individuals in the 
                                quarantine, diagnosed and recovered groups, but allow the user to change this value, which we cap at 100."),
                              h3("User Guide"),
                              p("First things first, this model is complicated with a lot of parameters, so to get a better picture 
@@ -65,7 +65,7 @@ ui <- fluidPage(
                                a simulation with random parameters. Adjust the inputs in the paramters tab to fit your data or, if you want
                                to simulate using the parameters Zhou. et al estimated, leave them as the defaults (2004). Once 
                                you're all set, please hit the run simulation button and go to the results tab. This will 
-                               display an animated plot and table that contains the day with the most indviduals
+                               display an animated plot and table that contains the day with the most individuals
                                for the population groups you want to explore. If you want to see multiple lines at one time, it is 
                                best to check all lines at once. If you check a new compartment while the 
                                simiulation is running, it will reload the graph in the middle 
@@ -76,7 +76,7 @@ ui <- fluidPage(
                              p("Zhou, Y., Ma, Z., &amp; Brauer, F. (2004). 
                      A discrete epidemic model for SARS transmission and control in China. 
                      Mathematical and Computer Modelling, 40(13), 1491–1506. https://doi.org/10.1016/j.mcm.2005.01.007 "),
-                             p("This app was created by Breanna Richards, Nancy Liu and Tim Hedspeth for PHP 2560")
+                             p("This app was created by Tim Hedspeth, Breanna Richards, and Nancy Liu for PHP 2560")
                     ), 
                     
                     # This next tab gives the visualization of the model and explanation of the parameters 
@@ -130,7 +130,7 @@ ui <- fluidPage(
                                                            "Number of Individuals Diagnosed with COVID",
                                                            50, min = 0, max = 100),
                                               
-                                              numericInput("recovered1",
+                                              numericInput("recovered2",
                                                            "Number of Individuals Recovered from COVID",
                                                            50, min = 0, max = 100), 
                                               p("We assume that 50 people are in these categories at the start, 
@@ -336,7 +336,8 @@ server <- function(input, output){
     output$title <- renderText({
         Newdf()
         return(paste0("The figure above shows the number of people in each selected group over the span of 400 days
-                      while the table below gives the day which has the most indviduals in each group.")) })
+                      while the table below gives the day which has the most individuals in each group."))
+    })
         
     
     
