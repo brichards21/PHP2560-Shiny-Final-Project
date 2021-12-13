@@ -5,10 +5,10 @@ account: nliux
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5312588
-bundleId: 5366772
+bundleId: 5366836
 url: https://nliux.shinyapps.io/PHP2560-Shiny-Final-Project/
-when: 1639406376.52519
-lastSyncTime: 1639406376.52523
+when: 1639407100.71897
+lastSyncTime: 1639407100.71899
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: checkcondition.R|create_table.R|get_diagnosed.R|IMG_3245.jpg|IMG_5302.pdf|README.md|README.pdf|README.Rmd|results_shiny/.DS_Store|results_shiny/Breanna.R|run_animation.R|SARSapp.R|SEIR Simulation Code.Rmd|Shiny_sketch.pdf|sixtynine.R|test.R|www/.DS_Store
