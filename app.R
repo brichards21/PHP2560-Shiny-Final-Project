@@ -156,7 +156,7 @@ ui <- fluidPage(
                                                        # using the function given by Zhou et al 
                                                        conditionalPanel(
                                                            condition = "input.Infection == 'Y'", 
-                                                           sliderInput("infectvity", "Infectivity Rate" , 0, 1, .5)
+                                                           sliderInput("infectvity", HTML("<p>Infectivity Rate (&beta;)</p>"), 0, 1, .5)
                                                        ), 
                                                        # This button is the key. When the user presses this button, 
                                                        # they run the simulation or are told to change their parameters if they 
